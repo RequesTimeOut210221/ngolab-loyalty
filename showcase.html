@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ngolab UI Component Showcase & Styleguide</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              orange: '#F97316',
+              slate: '#1E293B',
+              bg: '#F9FAFB'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 min-h-screen p-6 md:p-12">
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col items-end space-y-3"></div>
+
+  <!-- Showcase Header -->
+  <header class="max-w-6xl mx-auto mb-12 border-b border-gray-200 pb-6">
+    <div class="flex items-center space-x-3">
+      <span class="text-4xl">🎨</span>
+      <div>
+        <h1 class="text-3xl font-extrabold text-slate-800">Cetak Biru Galeri Komponen (Showcase)</h1>
+        <p class="text-sm text-gray-500 mt-1">Panduan visual dan koleksi UI Component untuk tim pengembang **Ngolab Express Cafe**.</p>
+      </div>
+    </div>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a href="index.html" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-xl text-xs transition">
+        🚀 Buka Aplikasi Utama (SPA)
+      </a>
+      <a href="profil.html" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-4 rounded-xl text-xs transition">
+        👤 Buka Link Profil
+      </a>
+    </div>
+  </header>
+
+  <!-- Showcase Content Grid -->
+  <main class="max-w-6xl mx-auto space-y-12">
+
+    <!-- ================= SECTION 1: COLOR PALETTE ================= -->
+    <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
+      <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+        <span class="text-base">🎨</span>
+        <span>Sistem Warna (Color Tokens)</span>
+      </h2>
+      <p class="text-xs text-gray-400">Palet warna utama sesuai arahan DESIGN.md untuk harmoni visual Modern Cafe & Tradisional Warung.</p>
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="p-4 rounded-xl border border-gray-100 space-y-2">
+          <div class="h-16 rounded-lg bg-orange-500 shadow-sm"></div>
+          <span class="block text-xs font-bold text-slate-700">Primary Orange</span>
+          <span class="block text-[10px] text-gray-400 font-mono">#F97316 (bg-orange-500)</span>
+        </div>
+        <div class="p-4 rounded-xl border border-gray-100 space-y-2">
+          <div class="h-16 rounded-lg bg-slate-800 shadow-sm"></div>
+          <span class="block text-xs font-bold text-slate-700">Secondary Slate</span>
+          <span class="block text-[10px] text-gray-400 font-mono">#1E293B (bg-slate-800)</span>
+        </div>
+        <div class="p-4 rounded-xl border border-gray-100 space-y-2">
+          <div class="h-16 rounded-lg bg-emerald-500 shadow-sm"></div>
+          <span class="block text-xs font-bold text-slate-700">Success Green</span>
+          <span class="block text-[10px] text-gray-400 font-mono">#10B981 (bg-emerald-500)</span>
+        </div>
+        <div class="p-4 rounded-xl border border-gray-100 space-y-2">
+          <div class="h-16 rounded-lg bg-gray-50 border border-gray-200"></div>
+          <span class="block text-xs font-bold text-slate-700">Background Canvas</span>
+          <span class="block text-[10px] text-gray-400 font-mono">#F9FAFB (bg-gray-50)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 2: DIGITAL ID CARDS ================= -->
+    <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+      <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+        <span class="text-base">💳</span>
+        <span>Kartu Keanggotaan (Digital ID Card Tiers)</span>
+      </h2>
+      <p class="text-xs text-gray-400">Gaya kartu bergradasi dinamis yang otomatis berubah berdasarkan perolehan saldo poin loyalty pengguna.</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Bronze -->
+        <div class="rounded-2xl p-6 shadow-md id-card-bronze flex flex-col justify-between min-h-[180px]">
+          <div>
+            <span class="text-[10px] uppercase tracking-widest font-extrabold opacity-75">Bronze Member (&lt; 20 Poin)</span>
+            <h4 class="text-lg font-bold mt-1">Budi Raharjo</h4>
+            <p class="text-[10px] opacity-75">1202210045</p>
+          </div>
+          <div class="mt-4">
+            <span class="text-[10px] opacity-75 block">Saldo Poin:</span>
+            <span class="text-2xl font-extrabold">12 POIN</span>
+          </div>
+        </div>
+        
+        <!-- Silver -->
+        <div class="rounded-2xl p-6 shadow-md id-card-silver flex flex-col justify-between min-h-[180px]">
+          <div>
+            <span class="text-[10px] uppercase tracking-widest font-extrabold opacity-75">Silver Member (20 - 49 Poin)</span>
+            <h4 class="text-lg font-bold mt-1">Budi Raharjo</h4>
+            <p class="text-[10px] opacity-75">1202210045</p>
+          </div>
+          <div class="mt-4">
+            <span class="text-[10px] opacity-75 block">Saldo Poin:</span>
+            <span class="text-2xl font-extrabold">45 POIN</span>
+          </div>
+        </div>
+        
+        <!-- Gold -->
+        <div class="rounded-2xl p-6 shadow-md id-card-gold flex flex-col justify-between min-h-[180px]">
+          <div>
+            <span class="text-[10px] uppercase tracking-widest font-extrabold opacity-75">Gold Member (50+ Poin)</span>
+            <h4 class="text-lg font-bold mt-1">Budi Raharjo</h4>
+            <p class="text-[10px] opacity-75">1202210045</p>
+          </div>
+          <div class="mt-4">
+            <span class="text-[10px] opacity-75 block">Saldo Poin:</span>
+            <span class="text-2xl font-extrabold">150 POIN</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 3: BUTTONS & INTERACTIVES ================= -->
+    <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+      <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+        <span class="text-base">🔘</span>
+        <span>Tombol & Notifikasi Interaktif</span>
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Buttons Column -->
+        <div class="space-y-4">
+          <h4 class="text-sm font-bold text-slate-700">Variasi Tombol Utama</h4>
+          
+          <div class="space-y-2">
+            <button class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl transition duration-150 text-sm shadow-sm">
+              CTA Utama (Orange)
+            </button>
+            <button class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-xl transition duration-150 text-sm shadow-sm">
+              CTA Sekunder (Slate Dark)
+            </button>
+            <button class="w-full bg-gray-100 hover:bg-gray-200 text-slate-700 font-semibold py-2 px-4 rounded-xl transition duration-150 text-xs">
+              Muted Button / Batal
+            </button>
+          </div>
+        </div>
+        
+        <!-- Interactive Toasts Trigger (For Demo purposes) -->
+        <div class="space-y-4">
+          <h4 class="text-sm font-bold text-slate-700">Toast Notifications (Uji Coba Interaktif)</h4>
+          <p class="text-xs text-gray-500">Klik tombol di bawah ini untuk melihat animasi umpan balik instan (Toast):</p>
+          
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="window.triggerToast('Poin Berhasil Ditambahkan!', 'success')" 
+                    class="bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 font-bold py-2 px-3 rounded-lg text-xs transition">
+              Toast Success
+            </button>
+            <button onclick="window.triggerToast('Poin tidak mencukupi!', 'error')" 
+                    class="bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-bold py-2 px-3 rounded-lg text-xs transition">
+              Toast Error
+            </button>
+            <button onclick="window.triggerToast('Nomor HP belum terdaftar!', 'warning')" 
+                    class="bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 text-yellow-800 font-bold py-2 px-3 rounded-lg text-xs transition col-span-2">
+              Toast Warning
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 4: BADGES & UI STATES ================= -->
+    <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+      <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+        <span class="text-base">🏷️</span>
+        <span>Status Badges & Keadaan UI (States)</span>
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Badges Status -->
+        <div class="p-4 rounded-xl border border-gray-100 space-y-4">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status Badge Pesanan</h4>
+          <div class="flex flex-wrap gap-2">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-700 uppercase">Pending</span>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 uppercase">Diproses</span>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700 uppercase">Selesai</span>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 uppercase">Ditolak</span>
+          </div>
+        </div>
+        
+        <!-- Loading State Demo -->
+        <div class="p-4 rounded-xl border border-gray-100 space-y-3">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Skeleton Loading (Catalog)</h4>
+          <div class="border border-gray-100 rounded-xl overflow-hidden shadow-sm bg-white">
+            <div class="h-20 skeleton-loading w-full"></div>
+            <div class="p-3 space-y-2">
+              <div class="h-3 skeleton-loading w-2/3 rounded"></div>
+              <div class="h-2 skeleton-loading w-1/2 rounded"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Input Validation State -->
+        <div class="p-4 rounded-xl border border-gray-100 space-y-3">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Error/Warn Input Focus State</h4>
+          <div>
+            <label class="block text-[10px] font-bold text-yellow-600 mb-1">NIM / HP Tidak Ditemukan!</label>
+            <input type="text" value="08511223344" readonly
+                   class="w-full px-3 py-2 border-2 border-yellow-500 focus:outline-none rounded-xl text-sm font-semibold bg-yellow-50/50">
+            <button class="mt-2 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1.5 rounded-lg text-[10px] uppercase">
+              Daftarkan Member Baru
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 5: GRID MENU CARD ================= -->
+    <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
+      <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+        <span class="text-base">🍲</span>
+        <span>Contoh Grid Menu Card</span>
+      </h2>
+      <p class="text-xs text-gray-400">Komponen kartu produk katalog untuk index.html, lengkap dengan badge kategori, harga rupiah, konversi perolehan poin, dan CTA.</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Cafe Menu Card -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 max-w-sm hover-scale">
+          <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=300&q=80" alt="Menu Kopi" class="h-40 w-full object-cover">
+          <div class="p-4">
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-600">Ngo+Lab Cafe</span>
+            <h4 class="font-bold text-slate-800 mt-2 text-base">Kopi Susu Aren</h4>
+            <p class="text-xs text-gray-400 mt-1 line-clamp-2">Kombinasi espresso, susu cair segar, dan gula aren pilihan lokal.</p>
+            <div class="flex items-center justify-between mt-4">
+              <span class="font-extrabold text-orange-600 text-base">Rp 15.000</span>
+              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">+1 Poin</span>
+            </div>
+            <button class="w-full bg-slate-800 text-white font-bold py-2 rounded-lg text-xs mt-3">
+              + Tambah Keranjang
+            </button>
+          </div>
+        </div>
+        
+        <!-- Bakso Menu Card -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 max-w-sm hover-scale">
+          <img src="https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=300&q=80" alt="Menu Bakso" class="h-40 w-full object-cover">
+          <div class="p-4">
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">Bakso Mas Yanto</span>
+            <h4 class="font-bold text-slate-800 mt-2 text-base">Bakso Telur Rebus</h4>
+            <p class="text-xs text-gray-400 mt-1 line-clamp-2">Bakso sapi jumbo berisikan telur ayam rebus utuh dengan siraman kuah kaldu sapi kental.</p>
+            <div class="flex items-center justify-between mt-4">
+              <span class="font-extrabold text-orange-600 text-base">Rp 20.000</span>
+              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">+2 Poin</span>
+            </div>
+            <button class="w-full bg-slate-800 text-white font-bold py-2 rounded-lg text-xs mt-3">
+              + Tambah Keranjang
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-6xl mx-auto mt-16 py-6 border-t border-gray-200 text-center text-xs text-gray-400">
+    <p>&copy; 2026 Ngolab Loyalty & Management App. Halaman Panduan UI Developer.</p>
+  </footer>
+
+  <!-- Trigger Toast Import Setup -->
+  <script type="module">
+    import { showToast } from './assets/js/api.js';
+    window.triggerToast = (msg, type) => showToast(msg, type);
+  </script>
+</body>
+</html>

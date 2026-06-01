@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ngolab Loyalty & Self-Order System</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  
+  <!-- Tailwind Configuration for Custom Colors -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              orange: '#F97316',
+              slate: '#1E293B',
+              bg: '#F9FAFB'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 min-h-screen pb-20 md:pb-0">
+
+  <!-- 🍞 Toast Notification Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col items-end space-y-3"></div>
+
+  <!-- 🌐 Top Navigation Bar (Header) -->
+  <header class="glass-navbar sticky top-0 z-40 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo -->
+        <div class="flex items-center space-x-2 cursor-pointer" onclick="window.AppActions.switchTab('home')">
+          <span class="text-2xl animate-bounce">☕</span>
+          <span class="font-extrabold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-amber-200">
+            NGOLAB EXPRESS
+          </span>
+        </div>
+        
+        <!-- Desktop Tab Navigation Links -->
+        <nav class="hidden md:flex space-x-8 text-sm font-semibold text-gray-300">
+          <button data-tab-target="home" class="hover:text-white transition py-1 active-nav-link">🏡 Beranda</button>
+          <button data-tab-target="katalog" class="hover:text-white transition py-1">🍔 Katalog Menu</button>
+          <button data-tab-target="reward" class="hover:text-white transition py-1">🎁 Katalog Reward</button>
+          <button data-tab-target="riwayat" class="hover:text-white transition py-1">🕒 Riwayat</button>
+          <button data-tab-target="profil" class="hover:text-white transition py-1">👤 Profil</button>
+        </nav>
+        
+        <!-- User Badge & Cart Trigger -->
+        <div class="flex items-center space-x-4">
+          <!-- User Profile info (Desktop only) -->
+          <div class="hidden sm:flex flex-col text-right">
+            <span id="nav-profile-name" class="text-xs font-bold text-gray-100">Budi Raharjo</span>
+            <span id="nav-points-badge" class="text-[10px] bg-orange-500 text-white font-extrabold px-1.5 py-0.5 rounded-full mt-0.5 self-end">
+              45 POIN
+            </span>
+          </div>
+          
+          <!-- Cart Indicator Button -->
+          <button id="cart-toggle-btn" class="relative p-2 rounded-full hover:bg-slate-700 transition duration-150">
+            <span class="text-xl">🛒</span>
+            <span id="nav-cart-count" class="absolute -top-1 -right-1 bg-orange-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-slate-800">
+              0
+            </span>
+          </button>
+          
+          <!-- Logout shortcut (Desktop only) -->
+          <button onclick="window.AppActions.logout()" class="hidden md:inline-block text-xs font-bold text-red-400 hover:text-red-300">
+            Logout
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  </header>
+
+  <!-- 📦 Main Viewport Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+    
+    <!-- ================= TAB 1: HOME/DASHBOARD ================= -->
+    <section id="home-tab" class="tab-content active-tab space-y-8">
+      
+      <!-- Welcome Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800">E-Dashboard Loyalti</h1>
+          <p class="text-sm text-gray-500">Cek saldo poin, tukar reward, atau lakukan self-order sekarang!</p>
+        </div>
+      </div>
+      
+      <!-- 3-Column Layout for Desktop, Stacks on Mobile -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Col 1: Digital ID Card -->
+        <div class="bg-slate-900 rounded-3xl p-1 shadow-lg hover-scale">
+          <div id="digital-id-card" class="rounded-2xl p-6 shadow-xl relative overflow-hidden transition-all duration-500 id-card-silver min-h-[220px] flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+              <div>
+                <p id="member-tier-badge" class="text-xs font-bold tracking-widest uppercase opacity-85">Silver Member</p>
+                <h3 id="member-name" class="text-xl font-bold mt-1">Budi Raharjo</h3>
+                <p id="member-nim" class="text-xs opacity-75 mt-0.5">1202210045</p>
+              </div>
+              <span class="text-3xl">☕</span>
+            </div>
+            
+            <div class="mt-4">
+              <span class="text-xs opacity-75 block">Total Saldo Poin:</span>
+              <h2 id="points-balance" class="text-4xl font-extrabold leading-none mt-1">45 POIN</h2>
+            </div>
+            
+            <div class="mt-6 flex justify-between items-center border-t border-white/20 pt-4">
+              <span class="text-[10px] opacity-75">Tunjukkan ID saat membayar di Kasir</span>
+              <button id="show-qr-btn" class="bg-white/20 hover:bg-white/30 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition">
+                🔎 Barcode ID
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Col 2: Next Reward & Progress -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
+          <div>
+            <h4 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+              <span>🎯 Target Reward Berikutnya</span>
+            </h4>
+            <p class="text-xs text-gray-500 mt-1">Dapatkan item gratis otomatis dengan mengumpulkan poin belanja.</p>
+            
+            <!-- Progress Bar -->
+            <div class="mt-6 space-y-2">
+              <div class="flex justify-between text-xs font-bold text-slate-600">
+                <span>Progress Poin</span>
+                <span id="target-points-percentage">55%</span>
+              </div>
+              <div class="w-full bg-gray-100 rounded-full h-3.5 overflow-hidden">
+                <div id="target-progress-bar" class="bg-gradient-to-r from-orange-500 to-amber-400 h-full rounded-full transition-all duration-700" style="width: 55%;"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6 p-3 bg-orange-50 text-orange-800 text-xs rounded-xl border border-orange-100" id="target-reward-text">
+            <strong>5 Poin</strong> lagi untuk klaim Kopi Susu Gratis!
+          </div>
+        </div>
+        
+        <!-- Col 3: Quick Claim WiFi & Share Mission -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between space-y-4">
+          <div>
+            <h4 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+              <span>⚡ Akses Cepat & Misi</span>
+            </h4>
+            <p class="text-xs text-gray-500 mt-1">Gunakan poin untuk voucher WiFi atau bagikan ke media sosial.</p>
+          </div>
+          
+          <div class="space-y-3">
+            <!-- WiFi Claim Button -->
+            <button id="quick-wifi-claim-btn" class="w-full flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-gray-100 transition-all">
+              <div class="flex items-center space-x-3 text-left">
+                <span class="text-xl">📡</span>
+                <div>
+                  <h5 class="text-xs font-bold text-slate-800">Wifi VIP 24 Jam</h5>
+                  <p class="text-[10px] text-gray-400">Tukar 5 Poin secara instan</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-orange-600">Klaim &gt;</span>
+            </button>
+            
+            <!-- Social Media Share Button -->
+            <button id="share-medsos-btn" class="w-full flex items-center justify-between p-3 bg-orange-50 hover:bg-orange-100 rounded-xl border border-orange-100 transition-all">
+              <div class="flex items-center space-x-3 text-left">
+                <span class="text-xl">📱</span>
+                <div>
+                  <h5 class="text-xs font-bold text-orange-800">Share Medsos Bonus</h5>
+                  <p class="text-[10px] text-orange-600">Dapatkan +10 Poin Gratis (1x)</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-orange-700">Klaim &gt;</span>
+            </button>
+          </div>
+        </div>
+        
+      </div>
+      
+    </section>
+
+    <!-- ================= TAB 2: KATALOG MENU ================= -->
+    <section id="katalog-tab" class="tab-content hidden-tab space-y-6">
+      
+      <!-- Catalog Header & Segmented Controller Switcher -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-800">Katalog Menu & Pemesanan</h2>
+          <p class="text-sm text-gray-500">Pilih menu kafe atau bakso tradisional, masukkan keranjang untuk checkout.</p>
+        </div>
+        
+        <!-- Segmented Toggle Switcher (Design.md Specs) -->
+        <div class="bg-gray-200/80 p-1 rounded-xl inline-flex max-w-sm self-start">
+          <button id="filter-cafe-btn" class="px-5 py-2 text-xs font-bold rounded-lg transition bg-white text-slate-800 shadow-sm">
+            ☕ Ngo+Lab Cafe
+          </button>
+          <button id="filter-bakso-btn" class="px-5 py-2 text-xs font-bold rounded-lg transition text-gray-500 hover:text-slate-800">
+            🍜 Bakso Mas Yanto
+          </button>
+        </div>
+      </div>
+      
+      <!-- Product Grid Container (Renders dynamically via app.js) -->
+      <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <!-- Skeleton Loaders appear here automatically -->
+      </div>
+      
+    </section>
+
+    <!-- ================= TAB 3: KATALOG REWARD ================= -->
+    <section id="reward-tab" class="tab-content hidden-tab space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-800">Toko Penukaran Poin (Katalog Reward)</h2>
+          <p class="text-sm text-gray-500">Tukarkan poin loyalty yang Anda kumpulkan dengan berbagai voucher & menu gratis.</p>
+        </div>
+      </div>
+      
+      <!-- Rewards List -->
+      <div id="rewards-catalog-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        <!-- Renders dynamically -->
+      </div>
+    </section>
+
+    <!-- ================= TAB 4: RIWAYAT AKTIVITAS ================= -->
+    <section id="riwayat-tab" class="tab-content hidden-tab space-y-6">
+      <div>
+        <h2 class="text-2xl font-bold text-slate-800">Riwayat Aktivitas Anda</h2>
+        <p class="text-sm text-gray-500">Pantau status pemesanan (Self-Order) serta klaim token voucher penukaran poin.</p>
+      </div>
+      
+      <!-- Timeline List -->
+      <div id="history-list-container" class="space-y-4 max-w-3xl mx-auto">
+        <!-- Renders dynamically -->
+      </div>
+    </section>
+
+    <!-- ================= TAB 5: PROFIL MEMBER ================= -->
+    <section id="profil-tab" class="tab-content hidden-tab space-y-8">
+      
+      <!-- Single Column Layout for Profile Settings Centered -->
+      <div class="max-w-2xl mx-auto bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
+        <h3 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+          <span>👤 Pengaturan Profil Pengguna</span>
+        </h3>
+        
+        <form id="profile-edit-form" class="space-y-4">
+          
+          <!-- Avatar Upload Section -->
+          <div class="flex items-center space-x-4">
+            <div class="relative w-20 h-20 rounded-2xl overflow-hidden border border-gray-200">
+              <img id="profile-avatar-preview" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" alt="Avatar" class="w-full h-full object-cover">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase">Foto Profil</label>
+              <input type="file" id="profile-avatar-input" accept="image/*" class="mt-1 text-xs text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer">
+            </div>
+          </div>
+          
+          <!-- Edit Fields -->
+          <div>
+            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Nama Lengkap</label>
+            <input type="text" id="profile-edit-name" value="Budi Raharjo" required
+                   class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none font-medium">
+          </div>
+          
+          <!-- Read-only Fields -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase">NIM / HP</label>
+              <div id="profile-info-nim" class="mt-1 text-sm font-semibold text-slate-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100">1202210045</div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase">API Key (Asesmen 3)</label>
+              <div id="profile-info-key" class="mt-1 text-xs font-mono font-bold text-slate-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100 truncate">ng-mock-key-abc</div>
+            </div>
+          </div>
+          
+          <button type="submit" class="w-full bg-orange-500 text-white font-bold py-2.5 rounded-xl hover:bg-orange-600 transition-all mt-4">
+            Simpan Perubahan
+          </button>
+        </form>
+        
+        <!-- Mobile-only logout link -->
+        <div class="md:hidden border-t border-gray-100 pt-4 text-center">
+          <button onclick="window.AppActions.logout()" class="text-sm font-bold text-red-500 hover:underline">
+            Keluar dari Akun (Logout)
+          </button>
+        </div>
+      </div>
+      
+      <!-- Bottom Section: Customer Feedback -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 max-w-2xl mx-auto space-y-4">
+        <div class="text-center">
+          <h4 class="text-base font-bold text-slate-800">Kirim Feedback Ulasan</h4>
+          <p class="text-xs text-gray-500 mt-0.5">Berikan ulasan Anda mengenai layanan kami dan dapatkan tambahan <strong>+5 Poin</strong>!</p>
+        </div>
+        
+        <form id="feedback-form" class="space-y-4">
+          <!-- Star Rating Buttons -->
+          <div class="flex items-center justify-center space-x-2">
+            <button class="star-rating-btn text-2xl text-yellow-400 transition hover:scale-110" data-value="1">★</button>
+            <button class="star-rating-btn text-2xl text-yellow-400 transition hover:scale-110" data-value="2">★</button>
+            <button class="star-rating-btn text-2xl text-yellow-400 transition hover:scale-110" data-value="3">★</button>
+            <button class="star-rating-btn text-2xl text-yellow-400 transition hover:scale-110" data-value="4">★</button>
+            <button class="star-rating-btn text-2xl text-yellow-400 transition hover:scale-110" data-value="5">★</button>
+          </div>
+          
+          <textarea id="feedback-review" placeholder="Ketik ulasan atau saran Anda disini..." required rows="3"
+                    class="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm"></textarea>
+          
+          <button type="submit" class="w-full bg-slate-800 text-white font-bold py-2 rounded-xl hover:bg-slate-900 transition-all text-sm">
+            Kirim Ulasan & Klaim Poin
+          </button>
+        </form>
+      </div>
+      
+    </section>
+    
+  </main>
+
+  <!-- ================= 🛒 SHOPPING CART DRAWER (SLIDE-OVER) ================= -->
+  <!-- Backdrop -->
+  <div id="cart-drawer-backdrop" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 opacity-0 pointer-events-none drawer-backdrop"></div>
+  
+  <!-- Drawer Panel -->
+  <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[380px] bg-white shadow-2xl z-50 translate-x-full drawer-content flex flex-col justify-between">
+    
+    <!-- Drawer Header -->
+    <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-800 text-white">
+      <div class="flex items-center space-x-2">
+        <span class="text-xl">🛒</span>
+        <h4 class="font-extrabold text-base">Keranjang Pemesanan</h4>
+      </div>
+      <button id="cart-close-btn" class="text-white hover:text-gray-300 text-xl font-bold">&times;</button>
+    </div>
+    
+    <!-- Drawer Items Scrollable Container -->
+    <div class="flex-1 overflow-y-auto p-6 space-y-4" id="cart-items-container">
+      <!-- Items dynamically injected here -->
+    </div>
+    
+    <!-- Drawer Footer / Checkout Panel -->
+    <div class="p-6 border-t border-gray-100 bg-gray-50 space-y-4">
+      <form id="checkout-form" class="space-y-4">
+        <!-- Notes Input -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 mb-1">Catatan Pesanan</label>
+          <textarea id="checkout-notes" placeholder="Contoh: Kopi sendikit gula, bakso pisah kuah..." rows="2"
+                    class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-orange-500"></textarea>
+        </div>
+        
+        <!-- Pricing Summaries -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs text-gray-500 font-medium">
+            <span>Potensi Poin Belanja:</span>
+            <span id="checkout-potential-points" class="text-emerald-600 font-bold">+0 Poin</span>
+          </div>
+          <div class="flex justify-between items-center text-sm font-bold text-slate-800">
+            <span>Total Belanja:</span>
+            <span id="checkout-total-price" class="text-orange-600 text-base">Rp 0</span>
+          </div>
+        </div>
+        
+        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl text-sm transition shadow-md">
+          🔥 Pesan Sekarang (Self-Order)
+        </button>
+      </form>
+    </div>
+    
+  </aside>
+
+  <nav class="md:hidden fixed bottom-0 left-0 w-full bg-slate-900 border-t border-slate-800 z-40 flex items-center justify-around h-16 text-gray-400">
+    <button data-tab-target="home" class="flex flex-col items-center justify-center flex-1 h-full hover:text-white transition py-1 text-xs font-medium active-nav-link">
+      <span class="text-lg">🏡</span>
+      <span class="mt-0.5">Beranda</span>
+    </button>
+    <button data-tab-target="katalog" class="flex flex-col items-center justify-center flex-1 h-full hover:text-white transition py-1 text-xs font-medium">
+      <span class="text-lg">🍔</span>
+      <span class="mt-0.5">Menu</span>
+    </button>
+    <button data-tab-target="reward" class="flex flex-col items-center justify-center flex-1 h-full hover:text-white transition py-1 text-xs font-medium">
+      <span class="text-lg">🎁</span>
+      <span class="mt-0.5">Reward</span>
+    </button>
+    <button data-tab-target="riwayat" class="flex flex-col items-center justify-center flex-1 h-full hover:text-white transition py-1 text-xs font-medium">
+      <span class="text-lg">🕒</span>
+      <span class="mt-0.5">Riwayat</span>
+    </button>
+    <button data-tab-target="profil" class="flex flex-col items-center justify-center flex-1 h-full hover:text-white transition py-1 text-xs font-medium">
+      <span class="text-lg">👤</span>
+      <span class="mt-0.5">Profil</span>
+    </button>
+  </nav>
+
+  <!-- Script Modules -->
+  <script type="module" src="assets/js/api.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+  <script type="module" src="assets/js/profile.js"></script>
+</body>
+</html>

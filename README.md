@@ -31,7 +31,7 @@ File `assets/js/api.js` dilengkapi dengan sistem **Automatic Mock Fallback**.
 
 Masing-masing anggota bertanggung jawab penuh atas pembuatan **2 CRUD PHP Monolitik (Panel Admin)** dan **2 Endpoint API PHP (Sisi Konsumen)**.
 
-### 👤 ANGGOTA 1: MANAJEMEN PENGGUNA & AUTHENTICATION
+### 👤 ANGGOTA 1: MANAJEMEN PENGGUNA & AUTHENTICATION - MAS'UD
 Fokus pada alur pendaftaran, login gabungan (Unified Login), otentikasi API Key, serta pengelolaan profil & data pengguna.
 
 * **Tugas CRUD (Full PHP - Folder `admin/`):**
@@ -44,7 +44,7 @@ Fokus pada alur pendaftaran, login gabungan (Unified Login), otentikasi API Key,
 
 ---
 
-### 👤 ANGGOTA 2: MANAJEMEN KATALOG & ULASAN (CONTENT & REVIEWS)
+### 👤 ANGGOTA 2: MANAJEMEN KATALOG & ULASAN (CONTENT & REVIEWS) - AYESHA
 Fokus pada pengelolaan menu kafe/bakso (Hybrid Catalog), kategori menu, serta sistem ulasan pelanggan (Feedback).
 
 * **Tugas CRUD (Full PHP - Folder `admin/`):**
@@ -58,7 +58,7 @@ Fokus pada pengelolaan menu kafe/bakso (Hybrid Catalog), kategori menu, serta si
 
 ---
 
-### 👤 ANGGOTA 3: TRANSAKSI & REDEMPTION (LOYALTY SYSTEM)
+### 👤 ANGGOTA 3: TRANSAKSI & REDEMPTION (LOYALTY SYSTEM) - SHAENA
 Fokus pada alur belanja mandiri (Self-Order Checkout), penukaran poin (Redemption), dan penyesuaian saldo poin member berdasarkan status pesanan.
 
 * **Tugas CRUD (Full PHP - Folder `admin/`):**

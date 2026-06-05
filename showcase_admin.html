@@ -1,508 +1,985 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ngolab Admin Panel & POS Showcase</title>
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css">
-  
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              orange: '#F97316',
-              slate: '#1E293B',
-              bg: '#F9FAFB'
-            }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-gray-100 min-h-screen text-slate-800 flex flex-col md:flex-row">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ngolab Admin Panel & POS Showcase</title>
 
-  <!-- Toast Container -->
-  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col items-end space-y-3"></div>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- 📂 Admin Sidebar Navigation -->
-  <aside class="w-full md:w-64 bg-slate-900 text-gray-300 flex flex-col justify-between shrink-0 border-r border-slate-800">
-    <div>
-      <!-- Sidebar Header -->
-      <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950">
-        <span class="text-xl mr-2 animate-pulse">☕</span>
-        <span class="font-extrabold text-sm tracking-wider text-orange-500">NGOLAB POS ADMIN</span>
-      </div>
-      
-      <!-- Sidebar Menu Links -->
-      <nav class="p-4 space-y-1" id="admin-sidebar-menu">
-        <button onclick="switchAdminTab('pos')" id="btn-tab-pos" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition bg-orange-500 text-white shadow-sm">
-          <span>📂</span> <span>Dashboard POS</span>
-        </button>
-        <button onclick="switchAdminTab('member')" id="btn-tab-member" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white">
-          <span>👥</span> <span>Kelola Member</span>
-        </button>
-        <button onclick="switchAdminTab('staff')" id="btn-tab-staff" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white">
-          <span>👤</span> <span>Kelola Staff</span>
-        </button>
-        <button onclick="switchAdminTab('menu')" id="btn-tab-menu" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white">
-          <span>🍔</span> <span>Kelola Menu</span>
-        </button>
-        <button onclick="switchAdminTab('kategori')" id="btn-tab-kategori" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white">
-          <span>🏷️</span> <span>Kelola Kategori</span>
-        </button>
-        <button onclick="switchAdminTab('reward')" id="btn-tab-reward" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white">
-          <span>🎁</span> <span>Kelola Reward</span>
-        </button>
-        <button onclick="switchAdminTab('penukaran')" id="btn-tab-penukaran" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white">
-          <span>🛒</span> <span>Kelola Penukaran</span>
-        </button>
-        <button onclick="switchAdminTab('feedback')" id="btn-tab-feedback" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white">
-          <span>💬</span> <span>Kelola Feedback</span>
-        </button>
-      </nav>
-    </div>
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="assets/css/style.css" />
 
-    <!-- Sidebar Footer -->
-    <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
-      <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center text-xs">A</div>
-        <div class="text-left">
-          <p class="text-[10px] font-bold text-white leading-tight">Admin Kasir</p>
-          <p class="text-[9px] text-gray-400 leading-none">Yanto</p>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                orange: "#F97316",
+                slate: "#1E293B",
+                bg: "#F9FAFB",
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-gray-100 min-h-screen text-slate-800 flex flex-col md:flex-row"
+  >
+    <!-- Toast Container -->
+    <div
+      id="toast-container"
+      class="fixed top-4 right-4 z-50 flex flex-col items-end space-y-3"
+    ></div>
+
+    <!-- 📂 Admin Sidebar Navigation -->
+    <aside
+      class="w-full md:w-64 bg-slate-900 text-gray-300 flex flex-col justify-between shrink-0 border-r border-slate-800"
+    >
+      <div>
+        <!-- Sidebar Header -->
+        <div
+          class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950"
+        >
+          <span class="text-xl mr-2 animate-pulse">☕</span>
+          <span class="font-extrabold text-sm tracking-wider text-orange-500"
+            >NGOLAB POS ADMIN</span
+          >
         </div>
-      </div>
-      <a href="index.html" class="text-xs text-red-400 font-bold hover:underline">Keluar</a>
-    </div>
-  </aside>
 
-  <!-- 💻 Main Content Wrapper -->
-  <div class="flex-1 flex flex-col min-w-0">
-    
-    <!-- Topbar Header -->
-    <header class="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between shrink-0 shadow-sm">
-      <div class="flex items-center space-x-2">
-        <h2 id="admin-current-title" class="text-lg font-bold text-slate-800">Dashboard Kasir POS</h2>
+        <!-- Sidebar Menu Links -->
+        <nav class="p-4 space-y-1" id="admin-sidebar-menu">
+          <button
+            onclick="switchAdminTab('pos')"
+            id="btn-tab-pos"
+            class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition bg-orange-500 text-white shadow-sm"
+          >
+            <span>📂</span> <span>Dashboard POS</span>
+          </button>
+          <button
+            onclick="switchAdminTab('member')"
+            id="btn-tab-member"
+            class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white"
+          >
+            <span>👥</span> <span>Kelola Member</span>
+          </button>
+          <button
+            onclick="switchAdminTab('staff')"
+            id="btn-tab-staff"
+            class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white"
+          >
+            <span>👤</span> <span>Kelola Staff</span>
+          </button>
+          <a
+            href="admin/kelola_menu.php"
+            id="btn-tab-menu"
+            class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white"
+          >
+            <span>🍔</span> <span>Kelola Menu</span>
+          </a>
+          <a
+            href="admin/kelola_kategori.php"
+            id="btn-tab-kategori"
+            class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white"
+          >
+            <span>🏷️</span> <span>Kelola Kategori</span>
+          </a>
+          <button
+            onclick="switchAdminTab('reward')"
+            id="btn-tab-reward"
+            class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white"
+          >
+            <span>🎁</span> <span>Kelola Reward</span>
+          </button>
+          <button
+            onclick="switchAdminTab('penukaran')"
+            id="btn-tab-penukaran"
+            class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white"
+          >
+            <span>🛒</span> <span>Kelola Penukaran</span>
+          </button>
+          <a
+            href="admin/kelola_feedback.php"
+            id="btn-tab-feedback"
+            class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white"
+          >
+            <span>💬</span> <span>Kelola Feedback</span>
+          </a>
+        </nav>
       </div>
-      <div class="flex items-center space-x-4">
-        <!-- Server Status Indicator -->
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          <span class="w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-ping"></span>
-          Server Online (Mock)
-        </span>
-        <span class="text-xs text-gray-500 font-semibold" id="current-time">12:00:00</span>
-      </div>
-    </header>
 
-    <!-- Main Working Panel -->
-    <main class="flex-grow p-6 overflow-y-auto space-y-6">
-
-      <!-- ================= TAB: POS ADMIN (INTERACTIVE) ================= -->
-      <section id="admin-sec-pos" class="admin-tab-content space-y-6">
-        
-        <!-- POS Split Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <!-- Column 1 & 2: POS Cashier Engine (Left) -->
-          <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6">
-            <div class="border-b border-gray-100 pb-4">
-              <h3 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Kasir Manual (Earning Poin)</h3>
-              <p class="text-xs text-gray-400 mt-0.5">Input belanja pelanggan offline untuk memberikan poin loyalty.</p>
-            </div>
-            
-            <form id="pos-earn-form" class="space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Nomor HP / NIM Member</label>
-                  <input type="text" id="pos-identifier" placeholder="Contoh: 1202210045" required
-                         class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none font-medium">
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Total Belanja (Rupiah)</label>
-                  <input type="number" id="pos-amount" placeholder="Contoh: 50000" required
-                         class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none font-medium">
-                </div>
-              </div>
-              
-              <div class="flex items-center justify-between p-3 bg-orange-50 rounded-xl border border-orange-100">
-                <span class="text-xs text-orange-800 font-medium">Preview Perolehan Poin (Kelipatan Rp10.000):</span>
-                <span id="pos-points-preview" class="text-sm font-extrabold text-orange-600">+0 Poin</span>
-              </div>
-              
-              <button type="submit" class="w-full bg-orange-500 text-white font-extrabold py-3 rounded-xl hover:bg-orange-600 transition shadow-md">
-                🔥 Proses Transaksi (Suntik Poin)
-              </button>
-            </form>
+      <!-- Sidebar Footer -->
+      <div
+        class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between"
+      >
+        <div class="flex items-center space-x-2">
+          <div
+            class="w-8 h-8 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center text-xs"
+          >
+            A
           </div>
-          
-          <!-- Column 3: Live Audit Log (Right) -->
-          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
-            <div>
-              <div class="border-b border-gray-100 pb-4 mb-4">
-                <h3 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Live Log Transaksi</h3>
-                <p class="text-xs text-gray-400 mt-0.5">Audit log poin sukses hari ini.</p>
+          <div class="text-left">
+            <p class="text-[10px] font-bold text-white leading-tight">
+              Admin Kasir
+            </p>
+            <p class="text-[9px] text-gray-400 leading-none">Yanto</p>
+          </div>
+        </div>
+        <a
+          href="index.html"
+          class="text-xs text-red-400 font-bold hover:underline"
+          >Keluar</a
+        >
+      </div>
+    </aside>
+
+    <!-- 💻 Main Content Wrapper -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- Topbar Header -->
+      <header
+        class="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between shrink-0 shadow-sm"
+      >
+        <div class="flex items-center space-x-2">
+          <h2 id="admin-current-title" class="text-lg font-bold text-slate-800">
+            Dashboard Kasir POS
+          </h2>
+        </div>
+        <div class="flex items-center space-x-4">
+          <!-- Server Status Indicator -->
+          <span
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+          >
+            <span
+              class="w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-ping"
+            ></span>
+            Server Online (Mock)
+          </span>
+          <span class="text-xs text-gray-500 font-semibold" id="current-time"
+            >12:00:00</span
+          >
+        </div>
+      </header>
+
+      <!-- Main Working Panel -->
+      <main class="flex-grow p-6 overflow-y-auto space-y-6">
+        <!-- ================= TAB: POS ADMIN (INTERACTIVE) ================= -->
+        <section id="admin-sec-pos" class="admin-tab-content space-y-6">
+          <!-- POS Split Layout -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Column 1 & 2: POS Cashier Engine (Left) -->
+            <div
+              class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-6"
+            >
+              <div class="border-b border-gray-100 pb-4">
+                <h3
+                  class="text-sm font-extrabold text-slate-800 uppercase tracking-wider"
+                >
+                  Kasir Manual (Earning Poin)
+                </h3>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  Input belanja pelanggan offline untuk memberikan poin loyalty.
+                </p>
               </div>
-              
-              <div id="pos-log-container" class="space-y-3 max-h-[220px] overflow-y-auto pr-1">
-                <!-- Log rows -->
-                <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+
+              <form id="pos-earn-form" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p class="font-bold text-slate-800">1202210045 (Budi R)</p>
-                    <p class="text-[10px] text-gray-400">01 Jun 2026 - 12:05</p>
+                    <label
+                      class="block text-xs font-bold text-gray-400 uppercase mb-1"
+                      >Nomor HP / NIM Member</label
+                    >
+                    <input
+                      type="text"
+                      id="pos-identifier"
+                      placeholder="Contoh: 1202210045"
+                      required
+                      class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none font-medium"
+                    />
                   </div>
-                  <span class="font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">+5 Poin</span>
+                  <div>
+                    <label
+                      class="block text-xs font-bold text-gray-400 uppercase mb-1"
+                      >Total Belanja (Rupiah)</label
+                    >
+                    <input
+                      type="number"
+                      id="pos-amount"
+                      placeholder="Contoh: 50000"
+                      required
+                      class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div
+                  class="flex items-center justify-between p-3 bg-orange-50 rounded-xl border border-orange-100"
+                >
+                  <span class="text-xs text-orange-800 font-medium"
+                    >Preview Perolehan Poin (Kelipatan Rp10.000):</span
+                  >
+                  <span
+                    id="pos-points-preview"
+                    class="text-sm font-extrabold text-orange-600"
+                    >+0 Poin</span
+                  >
+                </div>
+
+                <button
+                  type="submit"
+                  class="w-full bg-orange-500 text-white font-extrabold py-3 rounded-xl hover:bg-orange-600 transition shadow-md"
+                >
+                  🔥 Proses Transaksi (Suntik Poin)
+                </button>
+              </form>
+            </div>
+
+            <!-- Column 3: Live Audit Log (Right) -->
+            <div
+              class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between"
+            >
+              <div>
+                <div class="border-b border-gray-100 pb-4 mb-4">
+                  <h3
+                    class="text-sm font-extrabold text-slate-800 uppercase tracking-wider"
+                  >
+                    Live Log Transaksi
+                  </h3>
+                  <p class="text-xs text-gray-400 mt-0.5">
+                    Audit log poin sukses hari ini.
+                  </p>
+                </div>
+
+                <div
+                  id="pos-log-container"
+                  class="space-y-3 max-h-[220px] overflow-y-auto pr-1"
+                >
+                  <!-- Log rows -->
+                  <div
+                    class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg border border-gray-100 text-xs"
+                  >
+                    <div>
+                      <p class="font-bold text-slate-800">
+                        1202210045 (Budi R)
+                      </p>
+                      <p class="text-[10px] text-gray-400">
+                        01 Jun 2026 - 12:05
+                      </p>
+                    </div>
+                    <span
+                      class="font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded"
+                      >+5 Poin</span
+                    >
+                  </div>
                 </div>
               </div>
+
+              <button
+                onclick="clearPOSLogs()"
+                class="text-xs text-center text-red-500 font-bold hover:underline mt-4"
+              >
+                Hapus Log Sesi
+              </button>
             </div>
-            
-            <button onclick="clearPOSLogs()" class="text-xs text-center text-red-500 font-bold hover:underline mt-4">
-              Hapus Log Sesi
-            </button>
           </div>
-          
-        </div>
-        
-        <!-- Table: Pending Self-Orders (Mock POS) -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
-          <div class="border-b border-gray-100 pb-4 flex justify-between items-center">
-            <div>
-              <h3 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Daftar Pesanan Masuk (Self-Order)</h3>
-              <p class="text-xs text-gray-400 mt-0.5">Tekan tombol [Pesanan Selesai] setelah konsumen membayar untuk mencairkan poin.</p>
+
+          <!-- Table: Pending Self-Orders (Mock POS) -->
+          <div
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4"
+          >
+            <div
+              class="border-b border-gray-100 pb-4 flex justify-between items-center"
+            >
+              <div>
+                <h3
+                  class="text-sm font-extrabold text-slate-800 uppercase tracking-wider"
+                >
+                  Daftar Pesanan Masuk (Self-Order)
+                </h3>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  Tekan tombol [Pesanan Selesai] setelah konsumen membayar untuk
+                  mencairkan poin.
+                </p>
+              </div>
+              <span
+                class="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase"
+                id="pending-orders-count"
+                >2 Pending</span
+              >
             </div>
-            <span class="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase" id="pending-orders-count">2 Pending</span>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr
+                    class="border-b border-gray-200 text-xs font-bold text-gray-400 uppercase"
+                  >
+                    <th class="py-3 px-4">ID Pesanan</th>
+                    <th class="py-3 px-4">Member (NIM)</th>
+                    <th class="py-3 px-4">Item & Qty</th>
+                    <th class="py-3 px-4">Total Belanja</th>
+                    <th class="py-3 px-4">Poin Terkumpul</th>
+                    <th class="py-3 px-4 text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="pos-pending-orders-body"
+                  class="text-xs text-slate-700"
+                >
+                  <tr
+                    class="border-b border-gray-100 hover:bg-gray-50/50"
+                    id="order-row-004"
+                  >
+                    <td class="py-4 px-4 font-bold text-slate-800">
+                      #NGLB-004
+                    </td>
+                    <td class="py-4 px-4">
+                      <p class="font-bold">Budi Raharjo</p>
+                      <p class="text-[10px] text-gray-400">1202210045</p>
+                    </td>
+                    <td class="py-4 px-4">2x Kopi Susu Aren, 1x Bakso Telur</td>
+                    <td class="py-4 px-4 font-extrabold text-orange-600">
+                      Rp 50.000
+                    </td>
+                    <td class="py-4 px-4 font-bold text-emerald-600">
+                      +5 Poin
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <button
+                        onclick="
+                          approvePendingOrder(
+                            '004',
+                            'Budi Raharjo',
+                            '1202210045',
+                            5,
+                            'Rp 50.000',
+                          )
+                        "
+                        class="bg-green-500 hover:bg-green-600 text-white font-extrabold px-3 py-1.5 rounded-lg text-[10px] transition shadow-sm"
+                      >
+                        Pesanan Selesai / Cairkan Poin
+                      </button>
+                    </td>
+                  </tr>
+                  <tr
+                    class="border-b border-gray-100 hover:bg-gray-50/50"
+                    id="order-row-003"
+                  >
+                    <td class="py-4 px-4 font-bold text-slate-800">
+                      #NGLB-003
+                    </td>
+                    <td class="py-4 px-4">
+                      <p class="font-bold">Ani Wijaya</p>
+                      <p class="text-[10px] text-gray-400">1202210099</p>
+                    </td>
+                    <td class="py-4 px-4">1x Bakso Urat Jumbo</td>
+                    <td class="py-4 px-4 font-extrabold text-orange-600">
+                      Rp 22.000
+                    </td>
+                    <td class="py-4 px-4 font-bold text-emerald-600">
+                      +2 Poin
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <button
+                        onclick="
+                          approvePendingOrder(
+                            '003',
+                            'Ani Wijaya',
+                            '1202210099',
+                            2,
+                            'Rp 22.000',
+                          )
+                        "
+                        class="bg-green-500 hover:bg-green-600 text-white font-extrabold px-3 py-1.5 rounded-lg text-[10px] transition shadow-sm"
+                      >
+                        Pesanan Selesai / Cairkan Poin
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+        </section>
+
+        <!-- ================= TAB: MEMBER CRUD (STATIC LAYOUT PREVIEW) ================= -->
+        <section
+          id="admin-sec-member"
+          class="admin-tab-content hidden space-y-6"
+        >
+          <div
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4"
+          >
+            <div
+              class="border-b border-gray-100 pb-4 flex justify-between items-center"
+            >
+              <div>
+                <h3
+                  class="text-sm font-extrabold text-slate-800 uppercase tracking-wider"
+                >
+                  Kelola Member Loyalti
+                </h3>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  Daftar pengguna terdaftar di aplikasi konsumen.
+                </p>
+              </div>
+              <button
+                class="bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded-xl hover:bg-slate-900 transition"
+              >
+                + Tambah Member Manual
+              </button>
+            </div>
+
+            <table class="w-full text-left border-collapse text-xs">
               <thead>
-                <tr class="border-b border-gray-200 text-xs font-bold text-gray-400 uppercase">
-                  <th class="py-3 px-4">ID Pesanan</th>
-                  <th class="py-3 px-4">Member (NIM)</th>
-                  <th class="py-3 px-4">Item & Qty</th>
-                  <th class="py-3 px-4">Total Belanja</th>
-                  <th class="py-3 px-4">Poin Terkumpul</th>
+                <tr
+                  class="border-b border-gray-200 text-gray-400 uppercase font-bold"
+                >
+                  <th class="py-3 px-4">Member ID</th>
+                  <th class="py-3 px-4">NIM / HP</th>
+                  <th class="py-3 px-4">Email</th>
+                  <th class="py-3 px-4 text-center">Tier</th>
+                  <th class="py-3 px-4 text-right">Saldo Poin</th>
                   <th class="py-3 px-4 text-center">Aksi</th>
                 </tr>
               </thead>
-              <tbody id="pos-pending-orders-body" class="text-xs text-slate-700">
-                <tr class="border-b border-gray-100 hover:bg-gray-50/50" id="order-row-004">
-                  <td class="py-4 px-4 font-bold text-slate-800">#NGLB-004</td>
-                  <td class="py-4 px-4">
-                    <p class="font-bold">Budi Raharjo</p>
-                    <p class="text-[10px] text-gray-400">1202210045</p>
+              <tbody>
+                <tr class="border-b border-gray-100">
+                  <td class="py-3 px-4 font-bold">Budi Raharjo</td>
+                  <td class="py-3 px-4">1202210045</td>
+                  <td class="py-3 px-4">budi@student.telkomuniversity.ac.id</td>
+                  <td class="py-3 px-4 text-center">
+                    <span
+                      class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-[10px] font-bold"
+                      >Silver</span
+                    >
                   </td>
-                  <td class="py-4 px-4">2x Kopi Susu Aren, 1x Bakso Telur</td>
-                  <td class="py-4 px-4 font-extrabold text-orange-600">Rp 50.000</td>
-                  <td class="py-4 px-4 font-bold text-emerald-600">+5 Poin</td>
-                  <td class="py-4 px-4 text-center">
-                    <button onclick="approvePendingOrder('004', 'Budi Raharjo', '1202210045', 5, 'Rp 50.000')" 
-                            class="bg-green-500 hover:bg-green-600 text-white font-extrabold px-3 py-1.5 rounded-lg text-[10px] transition shadow-sm">
-                      Pesanan Selesai / Cairkan Poin
+                  <td class="py-3 px-4 text-right font-extrabold">45 Poin</td>
+                  <td class="py-3 px-4 text-center space-x-1">
+                    <button
+                      class="bg-orange-50 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 font-bold"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold"
+                    >
+                      Hapus
                     </button>
                   </td>
                 </tr>
-                <tr class="border-b border-gray-100 hover:bg-gray-50/50" id="order-row-003">
-                  <td class="py-4 px-4 font-bold text-slate-800">#NGLB-003</td>
-                  <td class="py-4 px-4">
-                    <p class="font-bold">Ani Wijaya</p>
-                    <p class="text-[10px] text-gray-400">1202210099</p>
+                <tr class="border-b border-gray-100">
+                  <td class="py-3 px-4 font-bold">Ani Wijaya</td>
+                  <td class="py-3 px-4">1202210099</td>
+                  <td class="py-3 px-4">ani@student.telkomuniversity.ac.id</td>
+                  <td class="py-3 px-4 text-center">
+                    <span
+                      class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-[10px] font-bold"
+                      >Bronze</span
+                    >
                   </td>
-                  <td class="py-4 px-4">1x Bakso Urat Jumbo</td>
-                  <td class="py-4 px-4 font-extrabold text-orange-600">Rp 22.000</td>
-                  <td class="py-4 px-4 font-bold text-emerald-600">+2 Poin</td>
-                  <td class="py-4 px-4 text-center">
-                    <button onclick="approvePendingOrder('003', 'Ani Wijaya', '1202210099', 2, 'Rp 22.000')" 
-                            class="bg-green-500 hover:bg-green-600 text-white font-extrabold px-3 py-1.5 rounded-lg text-[10px] transition shadow-sm">
-                      Pesanan Selesai / Cairkan Poin
+                  <td class="py-3 px-4 text-right font-extrabold">12 Poin</td>
+                  <td class="py-3 px-4 text-center space-x-1">
+                    <button
+                      class="bg-orange-50 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 font-bold"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold"
+                    >
+                      Hapus
                     </button>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
-        </div>
+        </section>
 
-      </section>
-
-      <!-- ================= TAB: MEMBER CRUD (STATIC LAYOUT PREVIEW) ================= -->
-      <section id="admin-sec-member" class="admin-tab-content hidden space-y-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
-          <div class="border-b border-gray-100 pb-4 flex justify-between items-center">
-            <div>
-              <h3 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Kelola Member Loyalti</h3>
-              <p class="text-xs text-gray-400 mt-0.5">Daftar pengguna terdaftar di aplikasi konsumen.</p>
+        <!-- ================= TAB: MENU CRUD (STATIC LAYOUT PREVIEW) ================= -->
+        <section id="admin-sec-menu" class="admin-tab-content hidden space-y-6">
+          <div
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4"
+          >
+            <div
+              class="border-b border-gray-100 pb-4 flex justify-between items-center"
+            >
+              <div>
+                <h3
+                  class="text-sm font-extrabold text-slate-800 uppercase tracking-wider"
+                >
+                  Kelola Master Menu Kafe / Bakso
+                </h3>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  Daftar item katalog yang dijual di sisi konsumen.
+                </p>
+              </div>
+              <button
+                class="bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded-xl hover:bg-slate-900 transition"
+              >
+                + Tambah Menu Baru
+              </button>
             </div>
-            <button class="bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded-xl hover:bg-slate-900 transition">
-              + Tambah Member Manual
-            </button>
-          </div>
-          
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="border-b border-gray-200 text-gray-400 uppercase font-bold">
-                <th class="py-3 px-4">Member ID</th>
-                <th class="py-3 px-4">NIM / HP</th>
-                <th class="py-3 px-4">Email</th>
-                <th class="py-3 px-4 text-center">Tier</th>
-                <th class="py-3 px-4 text-right">Saldo Poin</th>
-                <th class="py-3 px-4 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="border-b border-gray-100">
-                <td class="py-3 px-4 font-bold">Budi Raharjo</td>
-                <td class="py-3 px-4">1202210045</td>
-                <td class="py-3 px-4">budi@student.telkomuniversity.ac.id</td>
-                <td class="py-3 px-4 text-center"><span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-[10px] font-bold">Silver</span></td>
-                <td class="py-3 px-4 text-right font-extrabold">45 Poin</td>
-                <td class="py-3 px-4 text-center space-x-1">
-                  <button class="bg-orange-50 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 font-bold">Edit</button>
-                  <button class="bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold">Hapus</button>
-                </td>
-              </tr>
-              <tr class="border-b border-gray-100">
-                <td class="py-3 px-4 font-bold">Ani Wijaya</td>
-                <td class="py-3 px-4">1202210099</td>
-                <td class="py-3 px-4">ani@student.telkomuniversity.ac.id</td>
-                <td class="py-3 px-4 text-center"><span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-[10px] font-bold">Bronze</span></td>
-                <td class="py-3 px-4 text-right font-extrabold">12 Poin</td>
-                <td class="py-3 px-4 text-center space-x-1">
-                  <button class="bg-orange-50 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 font-bold">Edit</button>
-                  <button class="bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold">Hapus</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
 
-      <!-- ================= TAB: MENU CRUD (STATIC LAYOUT PREVIEW) ================= -->
-      <section id="admin-sec-menu" class="admin-tab-content hidden space-y-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
-          <div class="border-b border-gray-100 pb-4 flex justify-between items-center">
-            <div>
-              <h3 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Kelola Master Menu Kafe / Bakso</h3>
-              <p class="text-xs text-gray-400 mt-0.5">Daftar item katalog yang dijual di sisi konsumen.</p>
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr
+                  class="border-b border-gray-200 text-gray-400 uppercase font-bold"
+                >
+                  <th class="py-3 px-4">Foto</th>
+                  <th class="py-3 px-4">Nama Menu</th>
+                  <th class="py-3 px-4">Kategori</th>
+                  <th class="py-3 px-4 text-right">Harga</th>
+                  <th class="py-3 px-4 text-center font-bold">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-gray-100">
+                  <td class="py-3 px-4">
+                    <div class="w-10 h-10 rounded bg-gray-100 overflow-hidden">
+                      <img
+                        src="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=50&q=80"
+                        class="w-full h-full object-cover"
+                      />
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 font-bold">Kopi Susu Gula Aren</td>
+                  <td class="py-3 px-4">
+                    <span
+                      class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded font-bold text-[10px]"
+                      >Cafe</span
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-right font-bold text-orange-600">
+                    Rp 15.000
+                  </td>
+                  <td class="py-3 px-4 text-center space-x-1">
+                    <button
+                      class="bg-orange-50 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 font-bold"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold"
+                    >
+                      Hapus
+                    </button>
+                  </td>
+                </tr>
+                <tr class="border-b border-gray-100">
+                  <td class="py-3 px-4">
+                    <div class="w-10 h-10 rounded bg-gray-100 overflow-hidden">
+                      <img
+                        src="https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=50&q=80"
+                        class="w-full h-full object-cover"
+                      />
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 font-bold">Bakso Telur Rebus</td>
+                  <td class="py-3 px-4">
+                    <span
+                      class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold text-[10px]"
+                      >Bakso</span
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-right font-bold text-orange-600">
+                    Rp 20.000
+                  </td>
+                  <td class="py-3 px-4 text-center space-x-1">
+                    <button
+                      class="bg-orange-50 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 font-bold"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold"
+                    >
+                      Hapus
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= TAB: KATEGORI CRUD (STATIC LAYOUT PREVIEW) ================= -->
+        <section
+          id="admin-sec-kategori"
+          class="admin-tab-content hidden space-y-6"
+        >
+          <div
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4"
+          >
+            <div
+              class="border-b border-gray-100 pb-4 flex justify-between items-center"
+            >
+              <div>
+                <h3
+                  class="text-sm font-extrabold text-slate-800 uppercase tracking-wider"
+                >
+                  Kelola Kategori Menu/Reward
+                </h3>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  Daftar kategori untuk memfilter item katalog.
+                </p>
+              </div>
+              <button
+                class="bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded-xl hover:bg-slate-900 transition"
+              >
+                + Tambah Kategori
+              </button>
             </div>
-            <button class="bg-slate-800 text-white text-xs font-bold py-2 px-4 rounded-xl hover:bg-slate-900 transition">
-              + Tambah Menu Baru
-            </button>
+
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr
+                  class="border-b border-gray-200 text-gray-400 uppercase font-bold"
+                >
+                  <th class="py-3 px-4">Nama Kategori</th>
+                  <th class="py-3 px-4">Deskripsi Singkat</th>
+                  <th class="py-3 px-4 text-center font-bold">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-gray-100">
+                  <td class="py-3 px-4 font-bold text-slate-800">Kopi</td>
+                  <td class="py-3 px-4 text-gray-500">
+                    Berbagai varian kopi espresso dan manual brew
+                  </td>
+                  <td class="py-3 px-4 text-center space-x-1">
+                    <button
+                      class="bg-orange-50 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 font-bold"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold"
+                    >
+                      Hapus
+                    </button>
+                  </td>
+                </tr>
+                <tr class="border-b border-gray-100">
+                  <td class="py-3 px-4 font-bold text-slate-800">Bakso Kuah</td>
+                  <td class="py-3 px-4 text-gray-500">
+                    Bakso dengan kuah kaldu sapi segar
+                  </td>
+                  <td class="py-3 px-4 text-center space-x-1">
+                    <button
+                      class="bg-orange-50 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 font-bold"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold"
+                    >
+                      Hapus
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="border-b border-gray-200 text-gray-400 uppercase font-bold">
-                <th class="py-3 px-4">Foto</th>
-                <th class="py-3 px-4">Nama Menu</th>
-                <th class="py-3 px-4">Kategori</th>
-                <th class="py-3 px-4 text-right">Harga</th>
-                <th class="py-3 px-4 text-center font-bold">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="border-b border-gray-100">
-                <td class="py-3 px-4"><div class="w-10 h-10 rounded bg-gray-100 overflow-hidden"><img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=50&q=80" class="w-full h-full object-cover"></div></td>
-                <td class="py-3 px-4 font-bold">Kopi Susu Gula Aren</td>
-                <td class="py-3 px-4"><span class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded font-bold text-[10px]">Cafe</span></td>
-                <td class="py-3 px-4 text-right font-bold text-orange-600">Rp 15.000</td>
-                <td class="py-3 px-4 text-center space-x-1">
-                  <button class="bg-orange-50 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 font-bold">Edit</button>
-                  <button class="bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold">Hapus</button>
-                </td>
-              </tr>
-              <tr class="border-b border-gray-100">
-                <td class="py-3 px-4"><div class="w-10 h-10 rounded bg-gray-100 overflow-hidden"><img src="https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=50&q=80" class="w-full h-full object-cover"></div></td>
-                <td class="py-3 px-4 font-bold">Bakso Telur Rebus</td>
-                <td class="py-3 px-4"><span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold text-[10px]">Bakso</span></td>
-                <td class="py-3 px-4 text-right font-bold text-orange-600">Rp 20.000</td>
-                <td class="py-3 px-4 text-center space-x-1">
-                  <button class="bg-orange-50 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 font-bold">Edit</button>
-                  <button class="bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 font-bold">Hapus</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+        </section>
 
-      <!-- ================= STATIC VIEWS LOG HOLDER (PLACEHOLDER FOR GENERAL SHOWCASE) ================= -->
-      <section id="admin-sec-general" class="admin-tab-content hidden">
-        <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center space-y-4">
-          <span class="text-4xl block">🛠️</span>
-          <h3 class="text-lg font-bold text-slate-800">Modul CRUD Sisi Admin</h3>
-          <p class="text-sm text-gray-500 max-w-md mx-auto">
-            Halaman ini mewakili layout modul admin lainnya (Staff, Kategori, Reward, Penukaran, Ulasan). 
-            Seluruh berkas ini dirancang secara monolitik menggunakan file PHP Native sesuai instruksi proyek.
-          </p>
-          <div class="pt-4 border-t border-gray-100 flex justify-center space-x-3 text-xs">
-            <span class="bg-gray-100 px-3 py-1 rounded-lg">kelola_staff.php</span>
-            <span class="bg-gray-100 px-3 py-1 rounded-lg">kelola_kategori.php</span>
-            <span class="bg-gray-100 px-3 py-1 rounded-lg">kelola_reward.php</span>
-            <span class="bg-gray-100 px-3 py-1 rounded-lg">kelola_feedback.php</span>
+        <!-- ================= TAB: FEEDBACK CRUD (STATIC LAYOUT PREVIEW) ================= -->
+        <section
+          id="admin-sec-feedback"
+          class="admin-tab-content hidden space-y-6"
+        >
+          <div
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4"
+          >
+            <div class="border-b border-gray-100 pb-4">
+              <h3
+                class="text-sm font-extrabold text-slate-800 uppercase tracking-wider"
+              >
+                Log Ulasan (Feedback) Masuk
+              </h3>
+              <p class="text-xs text-gray-400 mt-0.5">
+                Pantau ulasan dari member dan hapus jika mengandung kata yang
+                tidak pantas.
+              </p>
+            </div>
+            <div class="space-y-3">
+              <div
+                class="border border-gray-200 rounded-xl p-4 flex justify-between items-start bg-gray-50 hover:bg-white transition"
+              >
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <span class="font-bold text-slate-800 text-sm"
+                      >Budi Raharjo</span
+                    >
+                    <span class="text-yellow-500 text-sm tracking-widest"
+                      >★★★★★</span
+                    >
+                  </div>
+                  <p class="text-xs text-gray-600 mt-2">
+                    "Kopi susu arennya juara banget! Suasana cafe juga nyaman
+                    buat nugas."
+                  </p>
+                  <p class="text-[10px] text-gray-400 mt-2">
+                    12 Jun 2024, 14:30
+                  </p>
+                </div>
+                <button
+                  class="text-red-500 font-bold text-xs bg-red-50 px-3 py-1.5 rounded-lg hover:bg-red-100 transition"
+                >
+                  Hapus
+                </button>
+              </div>
+              <div
+                class="border border-gray-200 rounded-xl p-4 flex justify-between items-start bg-gray-50 hover:bg-white transition"
+              >
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <span class="font-bold text-slate-800 text-sm"
+                      >Ani Wijaya</span
+                    >
+                    <span class="text-yellow-500 text-sm tracking-widest"
+                      >★★★★</span
+                    >
+                  </div>
+                  <p class="text-xs text-gray-600 mt-2">
+                    "Bakso uratnya mantap, kuahnya gurih. Cuma antrinya agak
+                    lama."
+                  </p>
+                  <p class="text-[10px] text-gray-400 mt-2">
+                    11 Jun 2024, 18:15
+                  </p>
+                </div>
+                <button
+                  class="text-red-500 font-bold text-xs bg-red-50 px-3 py-1.5 rounded-lg hover:bg-red-100 transition"
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-    </main>
-  </div>
+        <!-- ================= STATIC VIEWS LOG HOLDER (PLACEHOLDER FOR GENERAL SHOWCASE) ================= -->
+        <section id="admin-sec-general" class="admin-tab-content hidden">
+          <div
+            class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center space-y-4"
+          >
+            <span class="text-4xl block">🛠️</span>
+            <h3 class="text-lg font-bold text-slate-800">
+              Modul CRUD Sisi Admin
+            </h3>
+            <p class="text-sm text-gray-500 max-w-md mx-auto">
+              Halaman ini mewakili layout modul admin lainnya (Staff, Kategori,
+              Reward, Penukaran, Ulasan). Seluruh berkas ini dirancang secara
+              monolitik menggunakan file PHP Native sesuai instruksi proyek.
+            </p>
+            <div
+              class="pt-4 border-t border-gray-100 flex justify-center space-x-3 text-xs"
+            >
+              <span class="bg-gray-100 px-3 py-1 rounded-lg"
+                >kelola_staff.php</span
+              >
+              <span class="bg-gray-100 px-3 py-1 rounded-lg"
+                >kelola_kategori.php</span
+              >
+              <span class="bg-gray-100 px-3 py-1 rounded-lg"
+                >kelola_reward.php</span
+              >
+              <span class="bg-gray-100 px-3 py-1 rounded-lg"
+                >kelola_feedback.php</span
+              >
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
 
-  <!-- 📡 Admin Control Panel Scripts -->
-  <script>
-    // Live clock top right
-    setInterval(() => {
-      document.getElementById('current-time').textContent = new Date().toLocaleTimeString('id-ID');
-    }, 1000);
+    <!-- 📡 Admin Control Panel Scripts -->
+    <script>
+      // Live clock top right
+      setInterval(() => {
+        document.getElementById("current-time").textContent =
+          new Date().toLocaleTimeString("id-ID");
+      }, 1000);
 
-    // Dynamic Admin Tab switcher
-    function switchAdminTab(tabId) {
-      // Set title
-      const titles = {
-        pos: 'Dashboard Kasir POS',
-        member: 'Kelola Member Loyalti',
-        staff: 'Kelola Akun Staff',
-        menu: 'Kelola Master Menu',
-        kategori: 'Kelola Kategori Menu',
-        reward: 'Kelola Item Reward',
-        penukaran: 'Daftar Penukaran Poin',
-        feedback: 'Ulasan Pelanggan'
-      };
-      
-      document.getElementById('admin-current-title').textContent = titles[tabId] || 'Panel Pengelola';
+      // Dynamic Admin Tab switcher
+      function switchAdminTab(tabId) {
+        // Set title
+        const titles = {
+          pos: "Dashboard Kasir POS",
+          member: "Kelola Member Loyalti",
+          staff: "Kelola Akun Staff",
+          menu: "Kelola Master Menu",
+          kategori: "Kelola Kategori Menu",
+          reward: "Kelola Item Reward",
+          penukaran: "Daftar Penukaran Poin",
+          feedback: "Ulasan Pelanggan",
+        };
 
-      // Hide all sections
-      document.querySelectorAll('.admin-tab-content').forEach(sec => {
-        sec.classList.add('hidden');
-      });
+        document.getElementById("admin-current-title").textContent =
+          titles[tabId] || "Panel Pengelola";
 
-      // Show matching section
-      const activeSec = document.getElementById(`admin-sec-${tabId}`);
-      if (activeSec) {
-        activeSec.classList.remove('hidden');
-      } else {
-        document.getElementById('admin-sec-general').classList.remove('hidden');
+        // Hide all sections
+        document.querySelectorAll(".admin-tab-content").forEach((sec) => {
+          sec.classList.add("hidden");
+        });
+
+        // Show matching section
+        const activeSec = document.getElementById(`admin-sec-${tabId}`);
+        if (activeSec) {
+          activeSec.classList.remove("hidden");
+        } else {
+          document
+            .getElementById("admin-sec-general")
+            .classList.remove("hidden");
+        }
+
+        // Update sidebar active classes
+        document
+          .querySelectorAll("#admin-sidebar-menu button")
+          .forEach((btn) => {
+            btn.className =
+              "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white";
+          });
+
+        const activeBtn = document.getElementById(`btn-tab-${tabId}`);
+        if (activeBtn) {
+          activeBtn.className =
+            "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition bg-orange-500 text-white shadow-sm";
+        }
       }
 
-      // Update sidebar active classes
-      document.querySelectorAll('#admin-sidebar-menu button').forEach(btn => {
-        btn.className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white";
-      });
+      // Interactive Toast Notification
+      function showAdminToast(message, type = "success") {
+        const container = document.getElementById("toast-container");
+        if (!container) return;
 
-      const activeBtn = document.getElementById(`btn-tab-${tabId}`);
-      if (activeBtn) {
-        activeBtn.className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition bg-orange-500 text-white shadow-sm";
-      }
-    }
+        const toast = document.createElement("div");
+        toast.className = `flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow-lg border border-gray-100 transition-all duration-300 transform translate-y-2 opacity-0`;
 
-    // Interactive Toast Notification
-    function showAdminToast(message, type = 'success') {
-      const container = document.getElementById('toast-container');
-      if (!container) return;
-      
-      const toast = document.createElement('div');
-      toast.className = `flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow-lg border border-gray-100 transition-all duration-300 transform translate-y-2 opacity-0`;
-      
-      let iconColor = 'text-green-500 bg-green-50';
-      if (type === 'error') iconColor = 'text-red-500 bg-red-50';
-      
-      toast.innerHTML = `
+        let iconColor = "text-green-500 bg-green-50";
+        if (type === "error") iconColor = "text-red-500 bg-red-50";
+
+        toast.innerHTML = `
         <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg ${iconColor}">
-          ${type === 'success' ? '✓' : '✗'}
+          ${type === "success" ? "✓" : "✗"}
         </div>
         <div class="ms-3 text-xs font-bold text-slate-700">${message}</div>
         <button type="button" class="ms-auto text-gray-400 hover:text-slate-800 text-sm font-bold" onclick="this.parentElement.remove()">&times;</button>
       `;
-      container.appendChild(toast);
-      setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
-      setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => toast.remove(), 300);
-      }, 3500);
-    }
-
-    // 1. Process points from input calculator form
-    document.getElementById('pos-earn-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const identifier = document.getElementById('pos-identifier').value.trim();
-      const amount = parseInt(document.getElementById('pos-amount').value, 10);
-      const points = Math.floor(amount / 10000);
-      
-      if (points <= 0) {
-        showAdminToast('Total belanja di bawah Rp 10.000. Tidak ada poin ditambahkan.', 'error');
-        return;
+        container.appendChild(toast);
+        setTimeout(
+          () => toast.classList.remove("translate-y-2", "opacity-0"),
+          10,
+        );
+        setTimeout(() => {
+          toast.classList.add("opacity-0", "translate-y-2");
+          setTimeout(() => toast.remove(), 300);
+        }, 3500);
       }
 
-      // Add to log
-      appendLog(identifier, points);
-      showAdminToast(`Sukses! +${points} Poin ditambahkan ke member ${identifier}.`);
-      document.getElementById('pos-earn-form').reset();
-      document.getElementById('pos-points-preview').textContent = '+0 Poin';
-    });
+      // 1. Process points from input calculator form
+      document
+        .getElementById("pos-earn-form")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+          const identifier = document
+            .getElementById("pos-identifier")
+            .value.trim();
+          const amount = parseInt(
+            document.getElementById("pos-amount").value,
+            10,
+          );
+          const points = Math.floor(amount / 10000);
 
-    // Handle instant keyup preview for points earning
-    document.getElementById('pos-amount').addEventListener('input', (e) => {
-      const val = parseInt(e.target.value, 10) || 0;
-      const previewPts = Math.floor(val / 10000);
-      document.getElementById('pos-points-preview').textContent = `+${previewPts} Poin`;
-    });
+          if (points <= 0) {
+            showAdminToast(
+              "Total belanja di bawah Rp 10.000. Tidak ada poin ditambahkan.",
+              "error",
+            );
+            return;
+          }
 
-    // Helper to append log item dynamically
-    function appendLog(memberId, pointsEarned) {
-      const container = document.getElementById('pos-log-container');
-      const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-      const newLog = document.createElement('div');
-      newLog.className = "flex items-center justify-between p-2.5 bg-gray-50 rounded-lg border border-gray-100 text-xs animate-pulse";
-      newLog.innerHTML = `
+          // Add to log
+          appendLog(identifier, points);
+          showAdminToast(
+            `Sukses! +${points} Poin ditambahkan ke member ${identifier}.`,
+          );
+          document.getElementById("pos-earn-form").reset();
+          document.getElementById("pos-points-preview").textContent = "+0 Poin";
+        });
+
+      // Handle instant keyup preview for points earning
+      document.getElementById("pos-amount").addEventListener("input", (e) => {
+        const val = parseInt(e.target.value, 10) || 0;
+        const previewPts = Math.floor(val / 10000);
+        document.getElementById("pos-points-preview").textContent =
+          `+${previewPts} Poin`;
+      });
+
+      // Helper to append log item dynamically
+      function appendLog(memberId, pointsEarned) {
+        const container = document.getElementById("pos-log-container");
+        const time = new Date().toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const newLog = document.createElement("div");
+        newLog.className =
+          "flex items-center justify-between p-2.5 bg-gray-50 rounded-lg border border-gray-100 text-xs animate-pulse";
+        newLog.innerHTML = `
         <div>
           <p class="font-bold text-slate-850">${memberId} (Suntik POS)</p>
           <p class="text-[10px] text-gray-400">Hari ini - ${time}</p>
         </div>
         <span class="font-bold text-emerald-650 bg-emerald-50 px-2 py-1 rounded">+${pointsEarned} Poin</span>
       `;
-      container.insertBefore(newLog, container.firstChild);
-    }
+        container.insertBefore(newLog, container.firstChild);
+      }
 
-    // Clear logs
-    function clearPOSLogs() {
-      document.getElementById('pos-log-container').innerHTML = `
+      // Clear logs
+      function clearPOSLogs() {
+        document.getElementById("pos-log-container").innerHTML = `
         <div class="py-8 text-center text-gray-300 text-xs">Belum ada aktivitas hari ini.</div>
       `;
-      showAdminToast('Log sesi berhasil dibersihkan.');
-    }
+        showAdminToast("Log sesi berhasil dibersihkan.");
+      }
 
-    // 2. Approve self-orders from table
-    function approvePendingOrder(rowId, name, nim, points, total) {
-      const row = document.getElementById(`order-row-${rowId}`);
-      if (row) {
-        row.remove();
-        
-        // Add point to audit logs
-        appendLog(`${name} (${nim})`, points);
-        
-        // Show Success status toast
-        showAdminToast(`Transaksi ${nim} Lunas! +${points} Poin dicairkan ke saldo Member.`);
-        
-        // Update pending badge count
-        const countBadge = document.getElementById('pending-orders-count');
-        const currentCount = document.querySelectorAll('#pos-pending-orders-body tr').length;
-        if (currentCount > 0) {
-          countBadge.textContent = `${currentCount} Pending`;
-        } else {
-          countBadge.textContent = '0 Pending';
-          document.getElementById('pos-pending-orders-body').innerHTML = `
+      // 2. Approve self-orders from table
+      function approvePendingOrder(rowId, name, nim, points, total) {
+        const row = document.getElementById(`order-row-${rowId}`);
+        if (row) {
+          row.remove();
+
+          // Add point to audit logs
+          appendLog(`${name} (${nim})`, points);
+
+          // Show Success status toast
+          showAdminToast(
+            `Transaksi ${nim} Lunas! +${points} Poin dicairkan ke saldo Member.`,
+          );
+
+          // Update pending badge count
+          const countBadge = document.getElementById("pending-orders-count");
+          const currentCount = document.querySelectorAll(
+            "#pos-pending-orders-body tr",
+          ).length;
+          if (currentCount > 0) {
+            countBadge.textContent = `${currentCount} Pending`;
+          } else {
+            countBadge.textContent = "0 Pending";
+            document.getElementById("pos-pending-orders-body").innerHTML = `
             <tr>
               <td colspan="6" class="py-8 text-center text-gray-400">Tidak ada pesanan pending masuk. Sisi konsumen kosong.</td>
             </tr>
           `;
+          }
         }
       }
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>

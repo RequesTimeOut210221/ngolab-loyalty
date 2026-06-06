@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="id">
+content = """<!DOCTYPE html>
+<html lang=\"id\">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset=\"UTF-8\">
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
   <title>Kelola Pesanan | Ngolab POS Admin</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel=\"stylesheet\" href=\"../assets/css/style.css\">
   <style>
     :root {
       --sidebar-bg: #0F172A;
@@ -99,54 +99,6 @@
 
     .nav-link:hover {
       background: rgba(249, 115, 22, 0.16);
-    }
-
-    .sidebar-footer {
-      margin-top: auto;
-      padding: 18px 16px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(249, 115, 22, 0.18);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .footer-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      font-weight: 700;
-      color: white;
-      background: radial-gradient(circle at top left, #F97316 0%, #FB923C 85%);
-      box-shadow: 0 14px 30px rgba(249, 115, 22, 0.18);
-      flex-shrink: 0;
-    }
-
-    .footer-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      color: #E2E8F0;
-      min-width: 0;
-    }
-
-    .footer-title {
-      font-size: 14px;
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .footer-action {
-      font-size: 12px;
-      color: #F97316;
-      font-weight: 700;
-      white-space: nowrap;
     }
 
     .content {
@@ -465,7 +417,7 @@
         <div class="brand-logo">NG</div>
         <div class="brand-text">
           <span>NGOLAB POS ADMIN</span>
-          <span>Admin Kelola Pesanan</span>
+          <span>Admin Kasir</span>
         </div>
       </div>
       <nav class="nav-menu">
@@ -479,13 +431,6 @@
         <a href="#" class="nav-link active"><strong>Kelola Pesanan</strong></a>
         <a href="#" class="nav-link">Kelola Feedback</a>
       </nav>
-      <div class="sidebar-footer">
-        <div class="footer-avatar">A</div>
-        <div class="footer-info">
-          <div class="footer-title">Admin Kelola Pesanan</div>
-          <div class="footer-action">Keluar</div>
-        </div>
-      </div>
     </aside>
     <main class="content">
       <div class="page-header">
@@ -540,8 +485,8 @@
       <div class="filter-bar">
         <div class="filter-group">
           <label>01 Jun 2026 - 01 Jun 2026</label>
-          <input type="date" id="date-from" class="filter-input" value="">
-          <input type="date" id="date-to" class="filter-input" value="">
+          <input type="date" id="date-from" class="filter-input" value="2026-06-01">
+          <input type="date" id="date-to" class="filter-input" value="2026-06-01">
           <select id="status-filter" class="filter-select">
             <option value="all">Semua Status</option>
             <option value="pending">Pending</option>
@@ -594,37 +539,8 @@
 
     const state = {
       filterStatus: 'all',
-      dateFrom: '',
-      dateTo: '',
       search: ''
     };
-
-    // Members mock store (keyed by NIM if available, else phone)
-    const members = {};
-
-    function memberKeyFor(order) {
-      return order.nim && order.nim.trim() !== '' ? order.nim : order.phone;
-    }
-
-    function calculatePointsFromTotal(total) {
-      return Math.floor(total / 10000);
-    }
-
-    function initMembers() {
-      orders.forEach(o => {
-        const key = memberKeyFor(o);
-        if (!members[key]) members[key] = { name: o.name, nim: o.nim, phone: o.phone, balance: 0 };
-      });
-      // Initialize balances from already-success orders (avoid double apply)
-      orders.forEach(o => {
-        if (o.status === 'success') {
-          const key = memberKeyFor(o);
-          const pts = typeof o.points === 'number' ? o.points : calculatePointsFromTotal(o.total);
-          members[key].balance += pts;
-          o._pointsApplied = true;
-        }
-      });
-    }
 
     const statTotal = document.getElementById('stat-total');
     const statPending = document.getElementById('stat-pending');
@@ -633,8 +549,6 @@
     const statCanceled = document.getElementById('stat-canceled');
     const ordersTableBody = document.querySelector('#orders-table tbody');
     const statusFilter = document.getElementById('status-filter');
-    const dateFromInput = document.getElementById('date-from');
-    const dateToInput = document.getElementById('date-to');
     const searchInput = document.getElementById('search-input');
     const exportButton = document.getElementById('export-button');
 
@@ -698,104 +612,26 @@
         wrapper.appendChild(button('Batal', 'btn-cancel', false, () => updateOrderStatus(order.id, 'canceled')));
       } else if (order.status === 'success') {
         wrapper.appendChild(button('Selesai', 'btn-done', true, () => {}));
-        // allow admin to remove completed record if desired
-        wrapper.appendChild(button('Hapus', 'btn-cancel', false, () => deleteOrder(order.id)));
       } else if (order.status === 'canceled') {
         wrapper.appendChild(button('Dibatalkan', 'btn-disabled', true, () => {}));
-        wrapper.appendChild(button('Hapus', 'btn-cancel', false, () => deleteOrder(order.id)));
       }
       return wrapper;
-    }
-
-    function applyPointsToMember(order) {
-      if (!order) return;
-      if (order._pointsApplied) return; // avoid double applying
-      const key = memberKeyFor(order);
-      const pts = calculatePointsFromTotal(order.total);
-      order.points = pts;
-      if (!members[key]) members[key] = { name: order.name, nim: order.nim, phone: order.phone, balance: 0 };
-      members[key].balance += pts;
-      order._pointsApplied = true;
-      // visual toast
-      showToast(`${pts} poin ditambahkan ke ${order.name} (Saldo: ${members[key].balance} Poin)`);
-    }
-
-    function deleteOrder(orderId) {
-      const idx = orders.findIndex(o => o.id === orderId);
-      if (idx === -1) return;
-      if (!confirm('Hapus pesanan ini secara permanen?')) return;
-      orders.splice(idx, 1);
-      renderOrders();
-      updateStats();
     }
 
     function updateOrderStatus(orderId, status) {
       const order = orders.find(item => item.id === orderId);
       if (!order) return;
-      const prev = order.status;
       order.status = status;
-      // when moving to success, apply points once
-      if (status === 'success' && prev !== 'success') {
-        applyPointsToMember(order);
-      }
       renderOrders();
       updateStats();
     }
 
-    // Robust date parsing for order.date (handles ISO or '01 Jun 2026 16:21' formats)
-    function parseOrderDate(order) {
-      if (!order || !order.date) return null;
-      // try native parse first
-      const d1 = new Date(order.date);
-      if (!isNaN(d1.getTime())) return d1;
-
-      // fallback: try dd MMM yyyy HH:mm (e.g., '01 Jun 2026 16:21')
-      const parts = order.date.trim().split(' ');
-      if (parts.length >= 3) {
-        const day = parts[0];
-        const monthStr = parts[1];
-        const year = parts[2];
-        const time = parts.length >= 4 ? parts[3] : '00:00';
-        const months = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
-        const m = months[monthStr] || monthStr;
-        const iso = `${year}-${m}-${day}T${time}:00`;
-        const d2 = new Date(iso);
-        if (!isNaN(d2.getTime())) return d2;
-      }
-
-      return null;
-    }
-
-    // Small toast for feedback
-    function showToast(message, timeout = 3000) {
-      const t = document.createElement('div');
-      t.textContent = message;
-      t.style.position = 'fixed';
-      t.style.right = '20px';
-      t.style.bottom = '20px';
-      t.style.background = '#111827';
-      t.style.color = 'white';
-      t.style.padding = '12px 16px';
-      t.style.borderRadius = '12px';
-      t.style.boxShadow = '0 8px 30px rgba(2,6,23,0.4)';
-      t.style.zIndex = 9999;
-      document.body.appendChild(t);
-      setTimeout(() => t.remove(), timeout);
-    }
-
     function filterOrders() {
       const query = state.search.toLowerCase().trim();
-      const from = state.dateFrom ? new Date(state.dateFrom) : null;
-      const to = state.dateTo ? new Date(state.dateTo) : null;
-      if (from) from.setHours(0,0,0,0);
-      if (to) to.setHours(23,59,59,999);
-
       return orders.filter(order => {
-        const orderDate = parseOrderDate(order);
         const matchStatus = state.filterStatus === 'all' || order.status === state.filterStatus;
-        const matchSearch = query === '' || [order.id, (order.name||''), (order.nim||''), (order.phone||'')].some(value => String(value).toLowerCase().includes(query));
-        const matchDate = (!from && !to) || !orderDate || ((from ? orderDate >= from : true) && (to ? orderDate <= to : true));
-        return matchStatus && matchSearch && matchDate;
+        const matchSearch = query === '' || [order.id, order.name, order.nim, order.phone].some(value => value.toLowerCase().includes(query));
+        return matchStatus && matchSearch;
       });
     }
 
@@ -811,15 +647,13 @@
       filtered.forEach(order => {
         const row = document.createElement('tr');
         row.className = 'order-row';
-        const key = memberKeyFor(order);
-        const balance = (members[key] && members[key].balance) ? members[key].balance : 0;
         row.innerHTML = `
           <td>${order.id}</td>
           <td>${order.date}</td>
-          <td>${order.name}<span class="secondary-text">${order.nim} • Saldo: ${balance} Poin</span></td>
+          <td>${order.name}<span class="secondary-text">${order.nim}</span></td>
           <td>${order.phone}</td>
           <td style="color:#EA580C;font-weight:700;">${formatCurrency(order.total)}</td>
-          <td style="color:#16A34A;font-weight:700;">+${order.points || calculatePointsFromTotal(order.total)} Poin</td>
+          <td style="color:#16A34A;font-weight:700;">+${order.points} Poin</td>
           <td></td>
           <td></td>
         `;
@@ -851,26 +685,17 @@
       renderOrders();
     });
 
-    dateFromInput.addEventListener('change', (event) => {
-      state.dateFrom = event.target.value;
-      renderOrders();
-    });
-
-    dateToInput.addEventListener('change', (event) => {
-      state.dateTo = event.target.value;
-      renderOrders();
-    });
-
     searchInput.addEventListener('input', (event) => {
-        state.search = event.target.value;
-        renderOrders();
+      state.search = event.target.value;
+      renderOrders();
     });
 
     exportButton.addEventListener('click', downloadCSV);
 
-    initMembers();
     updateStats();
     renderOrders();
-    </script>
+  </script>
 </body>
-</html>
+</html>"""
+with open('admin/kelola_pesanan.php', 'w', encoding='utf-8') as f:
+    f.write(content)

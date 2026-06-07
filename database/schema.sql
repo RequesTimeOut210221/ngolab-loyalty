@@ -116,4 +116,4 @@ ON DUPLICATE KEY UPDATE `stok` = VALUES(`stok`);
 
 INSERT INTO `TABEL_STAFF` (`username`, `email`, `password`, `role`, `no_hp`, `nim`) VALUES
 ('Super Admin', 'admin@ngolab.com', SHA2('admin123', 256), 'superadmin', '081111111111', '1234567890')
-ON DUPLICATE KEY UPDATE `role` = VALUES(`role`), `no_hp` = VALUES(`no_hp`), `nim` = VALUES(`nim`);
+ON DUPLICATE KEY UPDATE `password` = VALUES(`password`), `role` = VALUES(`role`), `no_hp` = VALUES(`no_hp`), `nim` = VALUES(`nim`);

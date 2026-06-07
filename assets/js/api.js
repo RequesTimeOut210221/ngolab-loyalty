@@ -298,6 +298,13 @@ const ApiService = {
 
     if (res._mock) {
       // Mock Login behavior
+      if (phone === "admin@ngolab.com" || phone === "081111111111" || phone === "1234567890" || phone === "Super Admin") {
+        if (password === "admin123") {
+           SessionManager.setSession("mock-admin-session", "Super Admin", "admin@ngolab.com", 0, "1234567890");
+           showToast("Welcome Admin");
+           return { status: "success", role: "admin", redirect: "admin/admin_dashboard.php", message: "Welcome Admin" };
+        }
+      }
       if ((phone === "1202210045" || phone === "08123456789") && (!password || password === "123456")) {
         const mockKey = "ng-mock-apikey-budi-1202210045";
         SessionManager.setSession(
@@ -310,7 +317,7 @@ const ApiService = {
         showToast("Login Berhasil! Selamat datang di Ngolab Cafe.");
         return { status: "success", key: mockKey, user: MOCK_DB.profile };
       } else {
-        showToast("Nomor HP/NIM tidak terdaftar! Silakan registrasi.", "error");
+        showToast("Kredensial salah atau Nomor HP/NIM tidak terdaftar!", "error");
         return { status: "error", message: "User not found" };
       }
     }

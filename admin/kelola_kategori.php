@@ -1,148 +1,176 @@
 <?php
-include '../koneksi.php';
-/** @var mysqli $conn */
+if (!defined('IN_ADMIN')) exit('No direct script access allowed');
+
+$message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['tambah'])) {
-        $nama = $_POST['nama_kategori'];
-        $deskripsi = $_POST['deskripsi'];
-        $query = mysqli_query($conn, "INSERT INTO kategori_menu (nama_kategori, deskripsi) VALUES ('$nama', '$deskripsi')");
-        if (!$query) die("Gagal Tambah Kategori: " . mysqli_error($conn));
-    } elseif (isset($_POST['hapus'])) {
-        $id = $_POST['id_kategori'];
-        $query = mysqli_query($conn, "DELETE FROM kategori_menu WHERE id_kategori='$id'");
-        if (!$query) die("Gagal Hapus Kategori: " . mysqli_error($conn));
-    } elseif (isset($_POST['edit'])) {
-        $id = $_POST['id_kategori'];
-        $nama = $_POST['nama_kategori'];
-        $deskripsi = $_POST['deskripsi'];
-        $query = mysqli_query($conn, "UPDATE kategori_menu SET nama_kategori='$nama', deskripsi='$deskripsi' WHERE id_kategori='$id'");
-        if (!$query) die("Gagal Edit Kategori: " . mysqli_error($conn));
+    if (isset($_POST['action'])) {
+        $action = $_POST['action'];
+
+        if ($action === 'create') {
+            $nama = $_POST['nama_kategori'];
+            $deskripsi = $_POST['deskripsi'];
+            
+            $stmt = $conn->prepare("INSERT INTO TABEL_KATEGORI (nama_kategori, deskripsi) VALUES (?, ?)");
+            $stmt->bind_param("ss", $nama, $deskripsi);
+            if ($stmt->execute()) {
+                $message = "Kategori baru berhasil ditambahkan.";
+            } else {
+                $message = "Gagal menambah kategori: " . $stmt->error;
+            }
+        } elseif ($action === 'delete') {
+            $id = $_POST['id_kategori'];
+            $stmt = $conn->prepare("DELETE FROM TABEL_KATEGORI WHERE id_kategori=?");
+            $stmt->bind_param("i", $id);
+            if ($stmt->execute()) {
+                $message = "Kategori berhasil dihapus.";
+            } else {
+                $message = "Gagal menghapus kategori: " . $stmt->error;
+            }
+        } elseif ($action === 'edit') {
+            $id = $_POST['id_kategori'];
+            $nama = $_POST['nama_kategori'];
+            $deskripsi = $_POST['deskripsi'];
+            
+            $stmt = $conn->prepare("UPDATE TABEL_KATEGORI SET nama_kategori=?, deskripsi=? WHERE id_kategori=?");
+            $stmt->bind_param("ssi", $nama, $deskripsi, $id);
+            if ($stmt->execute()) {
+                $message = "Kategori berhasil diupdate.";
+            } else {
+                $message = "Gagal mengupdate kategori: " . $stmt->error;
+            }
+        }
     }
-    header("Location: kelola_kategori.php");
-    exit;
 }
 
-$kategori = mysqli_query($conn, "SELECT * FROM kategori_menu");
-
-$data_edit = null;
-if (isset($_GET['edit'])) {
-    $id_edit = mysqli_real_escape_string($conn, $_GET['edit']);
-    $result_edit = mysqli_query($conn, "SELECT * FROM kategori_menu WHERE id_kategori='$id_edit'");
-    $data_edit = mysqli_fetch_assoc($result_edit);
-}
+$kategori = mysqli_query($conn, "SELECT * FROM TABEL_KATEGORI ORDER BY id_kategori DESC");
 ?>
-<!DOCTYPE html>
-<html lang="id">
 
-<head>
-    <title>Kelola Kategori - Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
+<script>
+    function openCreateModal() {
+        document.getElementById('createKategoriModal').classList.remove('hidden');
+    }
+    function closeCreateModal() {
+        document.getElementById('createKategoriModal').classList.add('hidden');
+    }
+    function openEditModal(id, nama, deskripsi) {
+        document.getElementById('edit_id_kategori').value = id;
+        document.getElementById('edit_nama_kategori').value = nama;
+        document.getElementById('edit_deskripsi').value = deskripsi;
+        document.getElementById('editKategoriModal').classList.remove('hidden');
+    }
+    function closeEditModal() {
+        document.getElementById('editKategoriModal').classList.add('hidden');
+    }
+</script>
 
-<body class="bg-gray-100 min-h-screen text-slate-800 flex flex-col md:flex-row">
+<div class="container mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-slate-800">🏷️ Kelola Kategori Menu</h1>
+        <button onclick="openCreateModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded shadow-md transition">
+            + Tambah Kategori Baru
+        </button>
+    </div>
 
-    <!-- 📂 Admin Sidebar Navigation -->
-    <aside class="w-full md:w-64 bg-slate-900 text-gray-300 flex flex-col justify-between shrink-0 border-r border-slate-800">
-        <div>
-            <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950">
-                <span class="text-xl mr-2 animate-pulse">☕</span>
-                <span class="font-extrabold text-sm tracking-wider text-orange-500">NGOLAB POS ADMIN</span>
-            </div>
-            <nav class="p-4 space-y-1">
-                <a href="../showcase_admin.html" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white">
-                    <span>📂</span> <span>Dashboard POS</span>
-                </a>
-                <a href="kelola_menu.php" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white">
-                    <span>🍔</span> <span>Kelola Menu</span>
-                </a>
-                <a href="kelola_kategori.php" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition bg-orange-500 text-white shadow-sm">
-                    <span>🏷️</span> <span>Kelola Kategori</span>
-                </a>
-                <a href="kelola_feedback.php" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-bold transition text-gray-400 hover:bg-slate-800 hover:text-white">
-                    <span>💬</span> <span>Kelola Feedback</span>
-                </a>
-            </nav>
-        </div>
-        <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
-            <a href="../index.html" class="text-xs text-red-400 font-bold hover:underline w-full text-center">Keluar ke Aplikasi</a>
-        </div>
-    </aside>
+    <?php if($message): ?>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+        <span class="block sm:inline"><?= htmlspecialchars($message) ?></span>
+    </div>
+    <?php endif; ?>
 
-    <!-- 💻 Main Content Wrapper -->
-    <div class="flex-1 flex flex-col min-w-0">
-        <header class="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between shrink-0 shadow-sm">
-            <h2 class="text-lg font-bold text-slate-800">Kelola Kategori</h2>
-        </header>
-
-        <main class="flex-grow p-6 overflow-y-auto">
-            <div class="container" style="max-width: 100%; margin: 0; padding: 0;">
-                <h1>🏷️ Kelola Kategori Menu/Reward</h1>
-
-                <?php if ($data_edit): ?>
-                    <!-- Form Edit -->
-                    <div class="card">
-                        <h2>Edit Kategori</h2>
-                        <form method="POST">
-                            <input type="hidden" name="edit" value="1">
-                            <input type="hidden" name="id_kategori" value="<?= $data_edit['id_kategori'] ?>">
-                            <div class="form-group">
-                                <label>Nama Kategori</label>
-                                <input type="text" name="nama_kategori" value="<?= $data_edit['nama_kategori'] ?>" required class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label>Deskripsi</label>
-                                <textarea name="deskripsi" rows="2" class="form-control"><?= $data_edit['deskripsi'] ?></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Update Kategori</button>
-                            <a href="kelola_kategori.php" class="btn btn-link" style="margin-left: 15px;">Batal</a>
-                        </form>
-                    </div>
-                <?php else: ?>
-                    <!-- Form Tambah -->
-                    <div class="card">
-                        <h2>Tambah Kategori Baru</h2>
-                        <form method="POST">
-                            <input type="hidden" name="tambah" value="1">
-                            <div class="form-group">
-                                <label>Nama Kategori</label>
-                                <input type="text" name="nama_kategori" required class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label>Deskripsi</label>
-                                <textarea name="deskripsi" rows="2" class="form-control"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Simpan Kategori</button>
-                        </form>
-                    </div>
+    <div class="bg-white shadow-md rounded my-6 overflow-x-auto">
+        <table class="min-w-full w-full table-auto">
+            <thead>
+                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                    <th class="py-3 px-6 text-left">ID</th>
+                    <th class="py-3 px-6 text-left">Nama Kategori</th>
+                    <th class="py-3 px-6 text-left">Deskripsi</th>
+                    <th class="py-3 px-6 text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-600 text-sm font-light">
+                <?php while ($row = mysqli_fetch_assoc($kategori)): ?>
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-3 px-6 text-left whitespace-nowrap">
+                        <span class="font-medium"><?= $row['id_kategori'] ?></span>
+                    </td>
+                    <td class="py-3 px-6 text-left">
+                        <span class="font-bold capitalize block text-slate-800"><?= htmlspecialchars($row['nama_kategori']) ?></span>
+                    </td>
+                    <td class="py-3 px-6 text-left">
+                        <span class="text-gray-600"><?= htmlspecialchars($row['deskripsi']) ?></span>
+                    </td>
+                    <td class="py-3 px-6 text-center">
+                        <div class="flex item-center justify-center space-x-3">
+                            <button onclick="openEditModal(<?= $row['id_kategori'] ?>, '<?= htmlspecialchars(addslashes($row['nama_kategori'])) ?>', '<?= htmlspecialchars(addslashes($row['deskripsi'])) ?>')" class="transform hover:text-blue-500 hover:scale-110">
+                                ✏️ Edit
+                            </button>
+                            <form method="POST" action="" class="inline" onsubmit="return confirm('Hapus kategori ini beserta menu di dalamnya?');">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id_kategori" value="<?= $row['id_kategori'] ?>">
+                                <button type="submit" class="transform hover:text-red-500 hover:scale-110">🗑️ Hapus</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+                <?php if (mysqli_num_rows($kategori) == 0): ?>
+                <tr>
+                    <td colspan="4" class="py-4 text-center text-gray-500">Belum ada kategori yang ditambahkan.</td>
+                </tr>
                 <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-                <!-- Daftar Kategori -->
-                <div class="card">
-                    <h2>Daftar Kategori</h2>
-                    <div class="list-container">
-                        <?php while ($row = mysqli_fetch_assoc($kategori)): ?>
-                            <div class="list-item">
-                                <div class="list-item-content">
-                                    <h3><?= $row['nama_kategori'] ?></h3>
-                                    <p><?= $row['deskripsi'] ?></p>
-                                </div>
-                                <div style="display: flex; gap: 8px; align-items: flex-start;">
-                                    <a href="?edit=<?= $row['id_kategori'] ?>" class="btn btn-primary btn-sm" style="text-decoration:none;">Edit</a>
-                                    <form method="POST" onsubmit="return confirm('Hapus kategori ini?');">
-                                        <input type="hidden" name="hapus" value="1">
-                                        <input type="hidden" name="id_kategori" value="<?= $row['id_kategori'] ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                                    </form>
-                                </div>
-                            </div>
-                        <?php endwhile; ?>
-
-                        <?php if (mysqli_num_rows($kategori) == 0) echo "<p class='text-gray'>Belum ada kategori.</p>"; ?>
-                    </div>
-                </div>
+<!-- Modal Tambah Kategori -->
+<div id="createKategoriModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4 text-slate-800">Tambah Kategori Baru</h2>
+        <form method="POST" action="">
+            <input type="hidden" name="action" value="create">
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Nama Kategori</label>
+                <input type="text" name="nama_kategori" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
-</body>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Deskripsi</label>
+                <textarea name="deskripsi" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+            </div>
+            
+            <div class="flex items-center justify-between mt-6">
+                <button type="button" onclick="closeCreateModal()" class="text-gray-500 hover:text-gray-700 font-bold">Batal</button>
+                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Simpan Kategori</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-</html>
+<!-- Modal Edit Kategori -->
+<div id="editKategoriModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-xl font-bold mb-4 text-slate-800">Edit Kategori</h2>
+        <form method="POST" action="">
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" name="id_kategori" id="edit_id_kategori">
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Nama Kategori</label>
+                <input type="text" name="nama_kategori" id="edit_nama_kategori" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Deskripsi</label>
+                <textarea name="deskripsi" id="edit_deskripsi" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+            </div>
+            
+            <div class="flex items-center justify-between mt-6">
+                <button type="button" onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700 font-bold">Batal</button>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Update Kategori</button>
+            </div>
+        </form>
+    </div>
+</div>

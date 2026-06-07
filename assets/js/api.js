@@ -375,7 +375,7 @@ const ApiService = {
       id_menu: Number(menu.id_menu || menu.id),
       kategori: menu.kategori || menu.category || "",
       category: menu.category || menu.kategori || "",
-      gambar_menu: menu.gambar_menu || (menu.gambar ? `uploads/menus/${menu.gambar}` : ""),
+      gambar_menu: menu.gambar_menu || (menu.gambar ? `assets/uploads/menus/${menu.gambar}` : ""),
       description: menu.description || menu.deskripsi || "",
       poin_didapat: Number(menu.poin_didapat || Math.floor(Number(menu.harga || 0) / 10000)),
     }));

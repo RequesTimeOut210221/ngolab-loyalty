@@ -1,11 +1,5 @@
 <?php
-session_start();
-require_once '../koneksi.php';
-
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: login.php');
-    exit;
-}
+if (!defined('IN_ADMIN')) exit('No direct script access allowed');
 
 $message = '';
 
@@ -18,9 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = $_POST['email'];
             $password = hash('sha256', $_POST['password']);
             $role = $_POST['role'];
+            $no_hp = !empty($_POST['no_hp']) ? $_POST['no_hp'] : null;
+            $nim = !empty($_POST['nim']) ? $_POST['nim'] : null;
             
-            $stmt = $conn->prepare("INSERT INTO TABEL_STAFF (username, email, password, role) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("ssss", $username, $email, $password, $role);
+            $stmt = $conn->prepare("INSERT INTO TABEL_STAFF (username, email, password, role, no_hp, nim) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssssss", $username, $email, $password, $role, $no_hp, $nim);
             if ($stmt->execute()) {
                 $message = "Staff baru berhasil ditambahkan.";
             } else {
@@ -31,14 +27,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'];
             $email = $_POST['email'];
             $role = $_POST['role'];
+            $no_hp = !empty($_POST['no_hp']) ? $_POST['no_hp'] : null;
+            $nim = !empty($_POST['nim']) ? $_POST['nim'] : null;
             
             if (!empty($_POST['password'])) {
                 $password = hash('sha256', $_POST['password']);
-                $stmt = $conn->prepare("UPDATE TABEL_STAFF SET username=?, email=?, password=?, role=? WHERE id_staff=?");
-                $stmt->bind_param("ssssi", $username, $email, $password, $role, $id_staff);
+                $stmt = $conn->prepare("UPDATE TABEL_STAFF SET username=?, email=?, password=?, role=?, no_hp=?, nim=? WHERE id_staff=?");
+                $stmt->bind_param("ssssssi", $username, $email, $password, $role, $no_hp, $nim, $id_staff);
             } else {
-                $stmt = $conn->prepare("UPDATE TABEL_STAFF SET username=?, email=?, role=? WHERE id_staff=?");
-                $stmt->bind_param("sssi", $username, $email, $role, $id_staff);
+                $stmt = $conn->prepare("UPDATE TABEL_STAFF SET username=?, email=?, role=?, no_hp=?, nim=? WHERE id_staff=?");
+                $stmt->bind_param("sssssi", $username, $email, $role, $no_hp, $nim, $id_staff);
             }
             if ($stmt->execute()) {
                 $message = "Data staff berhasil diupdate.";
@@ -56,46 +54,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $staff_list = $conn->query("SELECT * FROM TABEL_STAFF ORDER BY id_staff DESC");
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Staff - Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        function openCreateModal() {
-            document.getElementById('createModal').classList.remove('hidden');
-        }
-        function closeCreateModal() {
-            document.getElementById('createModal').classList.add('hidden');
-        }
-        function openEditModal(id, username, email, role) {
-            document.getElementById('edit_id_staff').value = id;
-            document.getElementById('edit_username').value = username;
-            document.getElementById('edit_email').value = email;
-            document.getElementById('edit_role').value = role;
-            document.getElementById('editModal').classList.remove('hidden');
-        }
-        function closeEditModal() {
-            document.getElementById('editModal').classList.add('hidden');
-        }
-    </script>
-</head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+<script>
+    function openCreateModal() {
+        document.getElementById('createModal').classList.remove('hidden');
+    }
+    function closeCreateModal() {
+        document.getElementById('createModal').classList.add('hidden');
+    }
+    function openEditModal(id, username, email, role, no_hp, nim) {
+        document.getElementById('edit_id_staff').value = id;
+        document.getElementById('edit_username').value = username;
+        document.getElementById('edit_email').value = email;
+        document.getElementById('edit_role').value = role;
+        document.getElementById('edit_no_hp').value = no_hp || '';
+        document.getElementById('edit_nim').value = nim || '';
+        document.getElementById('editModal').classList.remove('hidden');
+    }
+    function closeEditModal() {
+        document.getElementById('editModal').classList.add('hidden');
+    }
+</script>
 
-<nav class="bg-slate-800 p-4 shadow-lg">
-    <div class="container mx-auto flex items-center justify-between">
-        <a href="#" class="text-white font-bold text-xl">Admin Panel</a>
-        <div class="space-x-4">
-            <a href="kelola_member.php" class="text-gray-300 hover:text-white">Kelola Member</a>
-            <a href="kelola_staff.php" class="text-white font-semibold underline">Kelola Staff</a>
-            <a href="logout.php" class="text-red-400 hover:text-red-300">Logout</a>
-        </div>
-    </div>
-</nav>
-
-<div class="container mx-auto mt-8 px-4">
+<div class="container mx-auto">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-slate-800">Daftar Staff Admin</h1>
         <button onclick="openCreateModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded shadow-md">
@@ -141,7 +121,7 @@ $staff_list = $conn->query("SELECT * FROM TABEL_STAFF ORDER BY id_staff DESC");
                     </td>
                     <td class="py-3 px-6 text-center">
                         <div class="flex item-center justify-center space-x-3">
-                            <button onclick="openEditModal(<?= $row['id_staff'] ?>, '<?= addslashes($row['username']) ?>', '<?= addslashes($row['email']) ?>', '<?= $row['role'] ?>')" class="transform hover:text-blue-500 hover:scale-110">
+                            <button onclick="openEditModal(<?= $row['id_staff'] ?>, '<?= addslashes($row['username']) ?>', '<?= addslashes($row['email']) ?>', '<?= $row['role'] ?>', '<?= addslashes($row['no_hp'] ?? '') ?>', '<?= addslashes($row['nim'] ?? '') ?>')" class="transform hover:text-blue-500 hover:scale-110">
                                 ✏️ Edit
                             </button>
                             <?php if($row['role'] !== 'superadmin' || $_SESSION['admin_role'] === 'superadmin'): ?>
@@ -180,6 +160,16 @@ $staff_list = $conn->query("SELECT * FROM TABEL_STAFF ORDER BY id_staff DESC");
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
                 <input type="password" name="password" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">No HP (Opsional)</label>
+                <input type="text" name="no_hp" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">NIM (Opsional)</label>
+                <input type="text" name="nim" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
             
             <div class="mb-6">
@@ -221,6 +211,16 @@ $staff_list = $conn->query("SELECT * FROM TABEL_STAFF ORDER BY id_staff DESC");
                 <input type="password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
             
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">No HP (Opsional)</label>
+                <input type="text" name="no_hp" id="edit_no_hp" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">NIM (Opsional)</label>
+                <input type="text" name="nim" id="edit_nim" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            
             <div class="mb-6">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Role</label>
                 <select name="role" id="edit_role" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -238,5 +238,4 @@ $staff_list = $conn->query("SELECT * FROM TABEL_STAFF ORDER BY id_staff DESC");
     </div>
 </div>
 
-</body>
-</html>
+</div>

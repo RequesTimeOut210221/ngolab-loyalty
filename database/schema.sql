@@ -1,8 +1,8 @@
 CREATE DATABASE IF NOT EXISTS `ngolab_loyalty`;
 USE `ngolab_loyalty`;
 
-CREATE TABLE IF NOT EXISTS `TABEL_USER` (
-  `id_user` INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS `TABEL_MEMBER` (
+  `id_member` INT AUTO_INCREMENT PRIMARY KEY,
   `username` VARCHAR(100) NOT NULL,
   `email` VARCHAR(100) NOT NULL UNIQUE,
   `password` VARCHAR(255) NOT NULL,
@@ -21,33 +21,20 @@ CREATE TABLE IF NOT EXISTS `TABEL_STAFF` (
   `email` VARCHAR(100) NOT NULL UNIQUE,
   `password` VARCHAR(255) NOT NULL,
   `role` ENUM('admin', 'kasir', 'superadmin') NOT NULL DEFAULT 'admin',
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `username` VARCHAR(100) NOT NULL,
-  `email` VARCHAR(100) NOT NULL UNIQUE,
-  `password` VARCHAR(255) DEFAULT NULL,
-  `no_hp` VARCHAR(20) DEFAULT NULL,
+  `no_hp` VARCHAR(20) DEFAULT NULL UNIQUE,
   `nim` VARCHAR(20) DEFAULT NULL,
-  `nim_member` VARCHAR(20) DEFAULT NULL,
-  `poin` INT NOT NULL DEFAULT 10,
-  `saldo_poin` INT NOT NULL DEFAULT 10,
-  `share_bonus` BOOLEAN NOT NULL DEFAULT FALSE,
-  `api_key` VARCHAR(100) DEFAULT NULL UNIQUE,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS `kategori_menu` (
+CREATE TABLE IF NOT EXISTS `TABEL_KATEGORI` (
   `id_kategori` INT AUTO_INCREMENT PRIMARY KEY,
   `nama_kategori` VARCHAR(100) NOT NULL,
   `deskripsi` TEXT DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS `menus` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS `TABEL_MENU` (
+  `id_menu` INT AUTO_INCREMENT PRIMARY KEY,
   `nama_menu` VARCHAR(150) NOT NULL,
   `harga` INT NOT NULL,
   `kategori` VARCHAR(50) NOT NULL,
@@ -58,13 +45,15 @@ CREATE TABLE IF NOT EXISTS `menus` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS `feedback` (
+CREATE TABLE IF NOT EXISTS `TABEL_FEEDBACK` (
   `id_feedback` INT AUTO_INCREMENT PRIMARY KEY,
-  `id_user` INT DEFAULT NULL,
+  `id_member` INT DEFAULT NULL,
   `nama_user` VARCHAR(100) DEFAULT 'Anonim',
   `rating` TINYINT NOT NULL DEFAULT 5,
   `ulasan` TEXT NOT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  `bonus_poin_diklaim` BOOLEAN NOT NULL DEFAULT TRUE,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`id_member`) REFERENCES `TABEL_MEMBER`(`id_member`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `TABEL_REWARD` (
@@ -73,12 +62,14 @@ CREATE TABLE IF NOT EXISTS `TABEL_REWARD` (
   `poin_dibutuhkan` INT NOT NULL,
   `stok` INT NOT NULL DEFAULT 0,
   `gambar` VARCHAR(255) DEFAULT NULL,
+  `kategori` VARCHAR(50) DEFAULT NULL,
+  `tier` ENUM('basic', 'silver', 'gold') DEFAULT 'basic',
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS `TABEL_PESANAN` (
   `id_pesanan` INT AUTO_INCREMENT PRIMARY KEY,
-  `id_user` INT NOT NULL,
+  `id_member` INT NOT NULL,
   `id_menu` INT NOT NULL,
   `jumlah` INT NOT NULL,
   `total_harga` INT NOT NULL,
@@ -86,39 +77,43 @@ CREATE TABLE IF NOT EXISTS `TABEL_PESANAN` (
   `catatan_pesanan` TEXT,
   `status` ENUM('pending', 'diproses', 'selesai') NOT NULL DEFAULT 'pending',
   `tanggal_pesan` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`id_user`) REFERENCES `TABEL_USER`(`id_user`) ON DELETE CASCADE,
-  FOREIGN KEY (`id_menu`) REFERENCES `menus`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`id_member`) REFERENCES `TABEL_MEMBER`(`id_member`) ON DELETE CASCADE,
+  FOREIGN KEY (`id_menu`) REFERENCES `TABEL_MENU`(`id_menu`) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `TABEL_PENUKARAN_REWARD` (
   `id_penukaran` INT AUTO_INCREMENT PRIMARY KEY,
-  `id_user` INT NOT NULL,
+  `id_member` INT NOT NULL,
   `id_reward` INT NOT NULL,
   `tanggal_tukar` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `status` ENUM('pending', 'berhasil', 'ditolak') NOT NULL DEFAULT 'pending',
   `token_wifi` VARCHAR(50) DEFAULT NULL,
-  FOREIGN KEY (`id_user`) REFERENCES `TABEL_USER`(`id_user`) ON DELETE CASCADE,
+  FOREIGN KEY (`id_member`) REFERENCES `TABEL_MEMBER`(`id_member`) ON DELETE CASCADE,
   FOREIGN KEY (`id_reward`) REFERENCES `TABEL_REWARD`(`id_reward`) ON DELETE CASCADE
 );
 
-INSERT INTO `kategori_menu` (`nama_kategori`, `deskripsi`) VALUES
+INSERT INTO `TABEL_KATEGORI` (`nama_kategori`, `deskripsi`) VALUES
 ('cafe', 'Berbagai varian kopi, non-kopi, dan menu cafe'),
 ('bakso', 'Menu bakso dan makanan hangat')
 ON DUPLICATE KEY UPDATE `deskripsi` = VALUES(`deskripsi`);
 
-INSERT INTO `menus` (`nama_menu`, `harga`, `kategori`, `deskripsi`, `gambar`, `poin_didapat`) VALUES
-('Kopi Susu Gula Aren', 15000, 'cafe', 'Espresso blend khas Ngolab dengan susu segar dan gula aren.', 'Test1.jpg', 1),
-('Matcha Latte', 20000, 'cafe', 'Matcha latte creamy untuk teman nugas.', 'Test2.jpg', 2),
-('Bakso Urat Spesial', 22000, 'bakso', 'Bakso urat dengan kuah kaldu gurih.', 'Test3.png', 2),
-('Bakso Telur', 20000, 'bakso', 'Bakso isi telur dengan kuah hangat.', 'Test4.jpg', 2)
+INSERT INTO `TABEL_MENU` (`nama_menu`, `harga`, `kategori`, `deskripsi`, `gambar`, `poin_didapat`) VALUES
+('Kopi Susu Gula Aren', 15000, 'cafe', 'Espresso blend khas Ngolab dicampur susu segar dan sirup aren organik.', NULL, 1),
+('Classic Espresso', 10000, 'cafe', 'Ekstraksi kopi murni konsentrat tinggi dari biji kopi arabika robusta pilihan.', NULL, 1),
+('Caramel Macchiato', 22000, 'cafe', 'Espresso dengan steamed milk lembut dan karamel saus melimpah.', NULL, 2),
+('Ice Americano', 12000, 'cafe', 'Espresso shot dingin dengan air jernih segar, pilihan terbaik penahan kantuk.', NULL, 1),
+('Matcha Latte Green Tea', 20000, 'cafe', 'Bubuk matcha Uji Jepang premium diseduh dengan susu segar hangat/dingin.', NULL, 2),
+('Bakso Mas Yanto Spesial Urat', 22000, 'bakso', 'Bakso urat jumbo berdaging tebal disajikan dengan kuah kaldu sapi pekat, mie, dan seledri.', NULL, 2),
+('Bakso Halus Kuah Kaldu', 18000, 'bakso', '5 butir bakso halus lembut yang memanjakan lidah bersama kaldu sapi segar.', NULL, 1),
+('Bakso Telur Rebus', 20000, 'bakso', 'Bakso daging sapi isi telur rebus utuh disiram kaldu panas gurih.', NULL, 2)
 ON DUPLICATE KEY UPDATE `harga` = VALUES(`harga`);
 
 INSERT INTO `TABEL_REWARD` (`nama_reward`, `poin_dibutuhkan`, `stok`, `gambar`) VALUES
-('WiFi VIP Voucher 24 Jam', 5, 99, 'https://placehold.co/300x300?text=WiFi+VIP'),
-('Kopi Susu Aren Gratis', 15, 20, 'uploads/menus/Test1.jpg'),
-('Bakso Urat Gratis', 25, 12, 'uploads/menus/Test3.png')
+('WiFi VIP Voucher 24 Jam', 5, 99, NULL),
+('Kopi Susu Aren Gratis', 15, 12, NULL),
+('Bakso Urat Jumbo Gratis', 25, 8, NULL)
 ON DUPLICATE KEY UPDATE `stok` = VALUES(`stok`);
 
-INSERT INTO `TABEL_STAFF` (`username`, `email`, `password`, `role`) VALUES
-('Super Admin', 'admin@ngolab.com', SHA2('admin123', 256), 'superadmin')
-ON DUPLICATE KEY UPDATE `role` = VALUES(`role`);
+INSERT INTO `TABEL_STAFF` (`username`, `email`, `password`, `role`, `no_hp`, `nim`) VALUES
+('Super Admin', 'admin@ngolab.com', SHA2('admin123', 256), 'superadmin', '081111111111', '1234567890')
+ON DUPLICATE KEY UPDATE `role` = VALUES(`role`), `no_hp` = VALUES(`no_hp`), `nim` = VALUES(`nim`);

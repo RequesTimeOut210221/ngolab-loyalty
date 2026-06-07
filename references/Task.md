@@ -7,6 +7,12 @@ Sesuai ketentuan proyek, masing-masing anggota minimal wajib membuat:
 
 ---
 
+> **[INFO] Tanggung Jawab Arsitektur SPA Admin (`admin_dashboard.php`):**
+> - **Mas'ud:** Bertanggung jawab atas kerangka utama `admin_dashboard.php`, sistem navigasi, manajemen sesi admin, dan keamanan file (routing dengan pengamanan `IN_ADMIN`).
+> - **Ayesha & Shaena:** Bertanggung jawab mengadaptasi script CRUD monolitiknya menjadi "komponen" yang siap di-include, menghapus duplikasi HTML, dan memperbaiki semua navigasi URL menuju format `admin_dashboard.php?page=...`.
+
+---
+
 ## 👥 MEMBER 1: MANAJEMEN PENGGUNA & AUTHENTICATION
 Fokus pada alur pendaftaran, login gabungan (Unified Login), otentikasi API Key, serta pengelolaan profil & data pengguna.
 
@@ -31,8 +37,8 @@ Fokus pada alur pendaftaran, login gabungan (Unified Login), otentikasi API Key,
   - `POST /api/profile.php?action=update` - Update nama lengkap & upload avatar/foto profil ke folder `uploads/profiles/`.
 
 ### 📱 3. Frontend Pages & JS
-- **Unified Login Page (`admin/login.php`)**: Logika form login terpadu.
-- **Halaman Profil Konsumen (`profil.html` & `assets/js/profile.js`)**: Integrasi dengan API Profil untuk render data, upload foto, dan kelola UI (Catatan: profil.html merujuk/mengarahkan ke tab Profil di index.html).
+- **Unified Login Page (`index.html`)**: Logika form login terpadu untuk member, staff, dan admin.
+- **Halaman Profil Konsumen (`index.html` tab Profil & `assets/js/profile.js`)**: Integrasi dengan API Profil untuk render data, upload foto, dan kelola UI.
 
 ---
 

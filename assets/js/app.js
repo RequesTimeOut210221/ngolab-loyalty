@@ -115,9 +115,10 @@ function showLoginModal() {
         
         <form id="login-form" class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Nomor HP / NIM / Username</label>
-            <input type="text" id="login-identifier" placeholder="Contoh: 1202210045" required
-                   class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-lg font-medium text-center mb-3">
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+              Email / Nomor HP / NIM / Username
+            </label>
+            <input type="text" id="login-identifier" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-lg font-medium text-center mb-3" placeholder="Masukkan ID Login Anda" required>
           </div>
           <div>
             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Password</label>
@@ -129,7 +130,7 @@ function showLoginModal() {
           </button>
         </form>
         
-        <div class="text-center mt-4">
+        <div class="text-center mt-4 flex flex-col space-y-2">
           <button id="show-register-btn" class="text-xs text-orange-500 font-semibold hover:underline">
             Member Baru? Daftarkan Akun Anda
           </button>
@@ -470,7 +471,7 @@ function renderCatalogCards() {
   
   grid.innerHTML = filtered.map(item => {
     const pointsEarning = Math.floor(item.harga / 10000);
-    const imageSrc = item.gambar_menu || (item.gambar ? `uploads/menus/${item.gambar}` : 'https://placehold.co/400x300?text=Menu');
+    const imageSrc = item.gambar_menu || (item.gambar ? `assets/uploads/menus/${item.gambar}` : 'https://placehold.co/400x300?text=Menu');
     return `
       <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 hover-scale flex flex-col justify-between">
         <div>

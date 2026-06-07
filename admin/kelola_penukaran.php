@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kelola Penukaran | Ngolab POS Admin</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
+<?php if (!defined('IN_ADMIN')) exit('No direct script access allowed'); ?>
   <style>
     :root {
       --sidebar-bg: #0F172A;
@@ -29,8 +23,7 @@
     }
 
     .admin-shell {
-      display: grid;
-      grid-template-columns: 280px 1fr;
+      display: block;
       min-height: 100vh;
     }
 
@@ -547,36 +540,7 @@
       }
     }
   </style>
-</head>
-<body>
   <div class="admin-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-logo">NG</div>
-        <div class="brand-text">
-          <span>NGOLAB POS ADMIN</span>
-          <span>Admin Kelola Penukaran</span>
-        </div>
-      </div>
-      <nav class="nav-menu">
-        <a href="#" class="nav-link"><strong>Dashboard POS</strong></a>
-        <a href="#" class="nav-link">Kelola Member</a>
-        <a href="#" class="nav-link">Kelola Staff</a>
-        <a href="#" class="nav-link">Kelola Menu</a>
-        <a href="#" class="nav-link">Kelola Kategori</a>
-        <a href="#" class="nav-link">Kelola Reward</a>
-        <a href="#" class="nav-link">Kelola Pesanan</a>
-        <a href="#" class="nav-link active"><strong>Kelola Penukaran</strong></a>
-        <a href="#" class="nav-link">Kelola Feedback</a>
-      </nav>
-      <div class="sidebar-footer">
-        <div class="footer-avatar">A</div>
-        <div class="footer-info">
-          <div class="footer-title">Admin Kelola Penukaran</div>
-          <div class="footer-action">Keluar</div>
-        </div>
-      </div>
-    </aside>
     <main class="content">
       <div class="page-header">
         <div>
@@ -824,5 +788,3 @@
     updateStats();
     renderTable();
   </script>
-</body>
-</html>

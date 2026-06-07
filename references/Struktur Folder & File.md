@@ -4,8 +4,7 @@ Berikut adalah struktur folder final yang sudah mencakup sistem manajemen profil
 
 ngolab-express-cafe/
 │
-├── index.html                 # [FRONTEND] Halaman Konsumen (List Menu Kafe, Keranjang Belanja)
-├── profil.html                # [FRONTEND] [BARU] Halaman Profil Konsumen (Cek Poin, Edit Foto, Riwayat)
+├── index.html                 # [FRONTEND] Halaman Konsumen & Login 1-Pintu (Beranda, Menu, Profil)
 ├── koneksi.php                # [CRITICAL] File koneksi database global
 ├── README.md                  # Dokumentasi API Key untuk Assessment 3
 │
@@ -37,9 +36,8 @@ ngolab-express-cafe/
 │   └── feedback.php           # (Anggota 4) POST Kirim Ulasan
 │
 └── admin/                     # [BACKEND] Dashboard PHP Monolithic
-    ├── login.php
-    ├── admin_dashboard.php
-    ├── layout_sidebar.php
+    ├── admin_dashboard.php    # (Layout Sidebar & Shell Dashboard)
+    ├── logout.php
     │
     ├── kelola_member.php      # (Anggota 1) CRUD Data Member (Admin bisa hapus member nakal)
     ├── kelola_staff.php       # (Anggota 1) CRUD Data Staff

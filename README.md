@@ -29,6 +29,10 @@ File `assets/js/api.js` dilengkapi dengan sistem **Automatic Mock Fallback**.
 
 ## 👥 2. Pembagian Tugas & Tanggung Jawab Tim (Referensi: `Task.md`)
 
+> **[INFO] Tanggung Jawab Arsitektur SPA Admin (`admin_dashboard.php`):**
+> - **MAS'UD:** Membangun struktur cangkang utama (shell) admin, sistem navigasi sidebar, manajemen sesi login, dan logika routing (`admin_dashboard.php`).
+> - **AYESHA & SHAENA:** Mengadaptasi dan mengintegrasikan file CRUD masing-masing agar dapat dipanggil dengan aman melalui parameter URL `?page=` (menghapus boilerplate HTML dan mematuhi aturan keamanan `IN_ADMIN`).
+
 Masing-masing anggota bertanggung jawab penuh atas pembuatan **2 CRUD PHP Monolitik (Panel Admin)** dan **2 Endpoint API PHP (Sisi Konsumen)**.
 
 ### 👤 ANGGOTA 1: MANAJEMEN PENGGUNA & AUTHENTICATION - MAS'UD
@@ -40,7 +44,7 @@ Fokus pada alur pendaftaran, login gabungan (Unified Login), otentikasi API Key,
 * **Tugas API Endpoint (Folder `api/`):**
   * `api/auth.php`: Menangani login member via nomor HP (kembalikan API Key) dan registrasi member baru (+10 Poin Welcome Bonus).
   * `api/profile.php`: Mengambil detail profil member (`GET` dengan header `x-api-key`) dan mengupdate profil/unggah avatar (`POST/PUT` simpan di `uploads/profiles/`).
-* **Halaman Terkait:** `admin/login.php` (Unified Login) dan integrasi frontend tab Profil.
+* **Halaman Terkait:** `index.html` (Unified Login & Dashboard) dan integrasi frontend tab Profil.
 
 ---
 
@@ -48,7 +52,7 @@ Fokus pada alur pendaftaran, login gabungan (Unified Login), otentikasi API Key,
 Fokus pada pengelolaan menu kafe/bakso (Hybrid Catalog), kategori menu, serta sistem ulasan pelanggan (Feedback).
 
 * **Tugas CRUD (Full PHP - Folder `admin/`):**
-  * `admin/kelola_menu.php`: Mengelola menu (Tambah, Baca, Edit, Hapus menu kopi & bakso beserta unggah foto menu ke `uploads/menus/`).
+  * `admin/kelola_menu.php`: Mengelola menu (Tambah, Baca, Edit, Hapus menu kopi & bakso beserta unggah foto menu ke `assets/uploads/menus/`).
   * `admin/kelola_kategori.php`: Mengelola kategori menu/hadiah (Tambah, Baca, Edit, Hapus).
   * `admin/kelola_feedback.php`: Memantau ulasan/rating masuk dari member dan menghapus ulasan yang tidak pantas.
 * **Tugas API Endpoint (Folder `api/`):**
@@ -84,4 +88,4 @@ Untuk memastikan penggabungan kode (assessment 3) berjalan lancar tanpa konflik 
 3. **Perubahan Berkas Front-End:**
    * Jika Anda perlu memodifikasi DOM atau fungsi di `index.html`, `assets/js/app.js`, atau `assets/css/style.css`, **komunikasikan terlebih dahulu di grup** sebelum melakukan `git push` untuk menghindari bentrokan perubahan (conflict).
 4. **Penyimpanan File Upload:**
-   * Pastikan gambar menu disimpan di `/uploads/menus/`, gambar reward di `/uploads/rewards/`, dan avatar profil di `/uploads/profiles/`.
+   * Pastikan gambar menu disimpan di `/assets/uploads/menus/`, gambar reward di `/assets/uploads/rewards/`, dan avatar profil di `/assets/uploads/profiles/`.

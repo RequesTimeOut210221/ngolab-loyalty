@@ -1,21 +1,17 @@
 <?php
-session_start();
-require_once '../koneksi.php';
-
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: login.php');
-    exit;
+if (!defined('IN_ADMIN')) {
+    exit('No direct script access allowed');
 }
 
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
-        $id_user = $_POST['id_user'] ?? 0;
+        $id_member = $_POST['id_member'] ?? 0;
         
         if ($_POST['action'] === 'delete') {
-            $stmt = $conn->prepare("DELETE FROM TABEL_USER WHERE id_user = ?");
-            $stmt->bind_param("i", $id_user);
+            $stmt = $conn->prepare("DELETE FROM TABEL_MEMBER WHERE id_member = ?");
+            $stmt->bind_param("i", $id_member);
             $stmt->execute();
             $message = "Member berhasil dihapus.";
         } elseif ($_POST['action'] === 'edit') {
@@ -24,14 +20,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nim = $_POST['nim'];
             $saldo_poin = $_POST['saldo_poin'];
             
-            $stmt = $conn->prepare("UPDATE TABEL_USER SET username=?, no_hp=?, nim=?, saldo_poin=? WHERE id_user=?");
-            $stmt->bind_param("sssii", $username, $no_hp, $nim, $saldo_poin, $id_user);
+            $stmt = $conn->prepare("UPDATE TABEL_MEMBER SET username=?, no_hp=?, nim=?, saldo_poin=? WHERE id_member=?");
+            $stmt->bind_param("sssii", $username, $no_hp, $nim, $saldo_poin, $id_member);
             $stmt->execute();
             $message = "Data member berhasil diupdate.";
         } elseif ($_POST['action'] === 'promote') {
             if ($_SESSION['admin_role'] === 'superadmin') {
-                $stmt = $conn->prepare("SELECT * FROM TABEL_USER WHERE id_user = ?");
-                $stmt->bind_param("i", $id_user);
+                $stmt = $conn->prepare("SELECT * FROM TABEL_MEMBER WHERE id_member = ?");
+                $stmt->bind_param("i", $id_member);
                 $stmt->execute();
                 $user = $stmt->get_result()->fetch_assoc();
                 
@@ -49,43 +45,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$members = $conn->query("SELECT * FROM TABEL_USER ORDER BY id_user DESC");
+$members = $conn->query("SELECT * FROM TABEL_MEMBER ORDER BY id_member DESC");
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Member - Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        function openEditModal(id, username, no_hp, nim, saldo_poin) {
-            document.getElementById('edit_id_user').value = id;
-            document.getElementById('edit_username').value = username;
-            document.getElementById('edit_no_hp').value = no_hp;
-            document.getElementById('edit_nim').value = nim;
-            document.getElementById('edit_saldo_poin').value = saldo_poin;
-            document.getElementById('editModal').classList.remove('hidden');
-        }
-        function closeEditModal() {
-            document.getElementById('editModal').classList.add('hidden');
-        }
-    </script>
-</head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+<script>
+    function openEditModal(id, username, no_hp, nim, saldo_poin) {
+        document.getElementById('edit_id_member').value = id;
+        document.getElementById('edit_username').value = username;
+        document.getElementById('edit_no_hp').value = no_hp;
+        document.getElementById('edit_nim').value = nim;
+        document.getElementById('edit_saldo_poin').value = saldo_poin;
+        document.getElementById('editModal').classList.remove('hidden');
+    }
+    function closeEditModal() {
+        document.getElementById('editModal').classList.add('hidden');
+    }
+</script>
 
-<nav class="bg-slate-800 p-4 shadow-lg">
-    <div class="container mx-auto flex items-center justify-between">
-        <a href="#" class="text-white font-bold text-xl">Admin Panel</a>
-        <div class="space-x-4">
-            <a href="kelola_member.php" class="text-white font-semibold underline">Kelola Member</a>
-            <a href="kelola_staff.php" class="text-gray-300 hover:text-white">Kelola Staff</a>
-            <a href="logout.php" class="text-red-400 hover:text-red-300">Logout</a>
-        </div>
-    </div>
-</nav>
-
-<div class="container mx-auto mt-8 px-4">
+<div class="container mx-auto">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-slate-800">Daftar Member Loyalty</h1>
     </div>
@@ -112,7 +88,7 @@ $members = $conn->query("SELECT * FROM TABEL_USER ORDER BY id_user DESC");
                 <?php while($row = $members->fetch_assoc()): ?>
                 <tr class="border-b border-gray-200 hover:bg-gray-100">
                     <td class="py-3 px-6 text-left whitespace-nowrap">
-                        <span class="font-medium"><?= $row['id_user'] ?></span>
+                        <span class="font-medium"><?= $row['id_member'] ?></span>
                     </td>
                     <td class="py-3 px-6 text-left">
                         <div class="flex items-center">
@@ -135,18 +111,18 @@ $members = $conn->query("SELECT * FROM TABEL_USER ORDER BY id_user DESC");
                     </td>
                     <td class="py-3 px-6 text-center">
                         <div class="flex item-center justify-center space-x-3">
-                            <button onclick="openEditModal(<?= $row['id_user'] ?>, '<?= addslashes($row['username']) ?>', '<?= addslashes($row['no_hp']) ?>', '<?= addslashes($row['nim']) ?>', <?= $row['saldo_poin'] ?>)" class="transform hover:text-blue-500 hover:scale-110">
+                            <button onclick="openEditModal(<?= $row['id_member'] ?>, '<?= addslashes($row['username']) ?>', '<?= addslashes($row['no_hp']) ?>', '<?= addslashes($row['nim']) ?>', <?= $row['saldo_poin'] ?>)" class="transform hover:text-blue-500 hover:scale-110">
                                 ✏️ Edit
                             </button>
                             <form method="POST" action="" class="inline" onsubmit="return confirm('Hapus member ini?');">
                                 <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id_user" value="<?= $row['id_user'] ?>">
+                                <input type="hidden" name="id_member" value="<?= $row['id_member'] ?>">
                                 <button type="submit" class="transform hover:text-red-500 hover:scale-110">🗑️ Hapus</button>
                             </form>
                             <?php if($_SESSION['admin_role'] === 'superadmin'): ?>
                             <form method="POST" action="" class="inline" onsubmit="return confirm('Promote member ini menjadi Admin?');">
                                 <input type="hidden" name="action" value="promote">
-                                <input type="hidden" name="id_user" value="<?= $row['id_user'] ?>">
+                                <input type="hidden" name="id_member" value="<?= $row['id_member'] ?>">
                                 <button type="submit" class="transform hover:text-green-500 hover:scale-110" title="Promote to Admin">⭐ Promote</button>
                             </form>
                             <?php endif; ?>
@@ -165,7 +141,7 @@ $members = $conn->query("SELECT * FROM TABEL_USER ORDER BY id_user DESC");
         <h2 class="text-xl font-bold mb-4 text-slate-800">Edit Member</h2>
         <form method="POST" action="">
             <input type="hidden" name="action" value="edit">
-            <input type="hidden" name="id_user" id="edit_id_user">
+            <input type="hidden" name="id_member" id="edit_id_member">
             
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
@@ -195,5 +171,4 @@ $members = $conn->query("SELECT * FROM TABEL_USER ORDER BY id_user DESC");
     </div>
 </div>
 
-</body>
-</html>
+</div>

@@ -18,8 +18,8 @@ if ($action === 'login') {
     
     $hashed_password = hash('sha256', $password);
 
-    // Check TABEL_USER first
-    $stmt = $conn->prepare("SELECT * FROM TABEL_USER WHERE no_hp = ? OR nim = ? OR username = ? OR email = ?");
+    // Check TABEL_MEMBER first
+    $stmt = $conn->prepare("SELECT * FROM TABEL_MEMBER WHERE no_hp = ? OR nim = ? OR username = ? OR email = ?");
     $stmt->bind_param("ssss", $identifier, $identifier, $identifier, $identifier);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -29,8 +29,8 @@ if ($action === 'login') {
         if ($hashed_password === $user['password']) {
             if (empty($user['api_key'])) {
                 $user['api_key'] = 'ng-key-' . bin2hex(random_bytes(16));
-                $update_key = $conn->prepare("UPDATE TABEL_USER SET api_key = ? WHERE id_user = ?");
-                $update_key->bind_param("si", $user['api_key'], $user['id_user']);
+                $update_key = $conn->prepare("UPDATE TABEL_MEMBER SET api_key = ? WHERE id_member = ?");
+                $update_key->bind_param("si", $user['api_key'], $user['id_member']);
                 $update_key->execute();
             }
             echo json_encode([
@@ -52,8 +52,8 @@ if ($action === 'login') {
     }
     
     // Check TABEL_STAFF
-    $stmt = $conn->prepare("SELECT * FROM TABEL_STAFF WHERE username = ? OR email = ?");
-    $stmt->bind_param("ss", $identifier, $identifier);
+    $stmt = $conn->prepare("SELECT * FROM TABEL_STAFF WHERE username = ? OR email = ? OR no_hp = ? OR nim = ?");
+    $stmt->bind_param("ssss", $identifier, $identifier, $identifier, $identifier);
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -69,7 +69,7 @@ if ($action === 'login') {
             echo json_encode([
                 'status' => 'success',
                 'role' => 'admin',
-                'redirect' => 'admin/kelola_member.php',
+                'redirect' => 'admin/admin_dashboard.php',
                 'message' => 'Welcome Admin'
             ]);
             exit;
@@ -85,7 +85,7 @@ if ($action === 'login') {
     $password = hash('sha256', $data['password'] ?? '');
     
     // Cek apakah sudah ada
-    $check = $conn->prepare("SELECT id_user FROM TABEL_USER WHERE no_hp = ? OR email = ?");
+    $check = $conn->prepare("SELECT id_member FROM TABEL_MEMBER WHERE no_hp = ? OR email = ?");
     $check->bind_param("ss", $phone, $email);
     $check->execute();
     if ($check->get_result()->num_rows > 0) {
@@ -95,7 +95,7 @@ if ($action === 'login') {
     
     $api_key = 'ng-key-' . bin2hex(random_bytes(16));
     
-    $stmt = $conn->prepare("INSERT INTO TABEL_USER (username, email, password, no_hp, api_key, saldo_poin) VALUES (?, ?, ?, ?, ?, 10)");
+    $stmt = $conn->prepare("INSERT INTO TABEL_MEMBER (username, email, password, no_hp, api_key, saldo_poin) VALUES (?, ?, ?, ?, ?, 10)");
     $stmt->bind_param("sssss", $username, $email, $password, $phone, $api_key);
     
     if ($stmt->execute()) {

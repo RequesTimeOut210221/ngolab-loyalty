@@ -99,7 +99,7 @@ $page = $_GET['page'] ?? 'pos';
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
           <h2 id="admin-current-title" class="text-lg font-bold text-slate-800 capitalize">
-            <?= $page === 'pos' ? 'Dashboard Kasir POS' : 'Modul ' . $page ?>
+            <?= $page === 'pos' ? 'Dashboard Kasir POS' : 'Modul ' . htmlspecialchars($page, ENT_QUOTES, 'UTF-8') ?>
           </h2>
         </div>
         <div class="flex items-center space-x-4">
@@ -168,21 +168,34 @@ $page = $_GET['page'] ?? 'pos';
         <?php else: ?>
             <!-- Dynamic Include for Other Pages -->
             <?php
-            $page_file_map = [
-                'member' => 'kelola_member.php',
-                'staff' => 'kelola_staff.php',
-                'menu' => 'kelola_menu.php',
-                'kategori' => 'kelola_kategori.php',
-                'pesanan' => 'kelola_pesanan.php',
-                'reward' => 'kelola_reward.php',
-                'penukaran' => 'kelola_penukaran.php',
-                'feedback' => 'kelola_feedback.php',
-            ];
-            
-            if (array_key_exists($page, $page_file_map)) {
-                include $page_file_map[$page];
-            } else {
-                echo "<p class='text-red-500'>Halaman tidak ditemukan.</p>";
+            switch ($page) {
+                case 'member':
+                    include 'kelola_member.php';
+                    break;
+                case 'staff':
+                    include 'kelola_staff.php';
+                    break;
+                case 'menu':
+                    include 'kelola_menu.php';
+                    break;
+                case 'kategori':
+                    include 'kelola_kategori.php';
+                    break;
+                case 'pesanan':
+                    include 'kelola_pesanan.php';
+                    break;
+                case 'reward':
+                    include 'kelola_reward.php';
+                    break;
+                case 'penukaran':
+                    include 'kelola_penukaran.php';
+                    break;
+                case 'feedback':
+                    include 'kelola_feedback.php';
+                    break;
+                default:
+                    echo "<p class='text-red-500'>Halaman tidak ditemukan.</p>";
+                    break;
             }
             ?>
         <?php endif; ?>

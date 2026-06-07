@@ -168,9 +168,19 @@ $page = $_GET['page'] ?? 'pos';
         <?php else: ?>
             <!-- Dynamic Include for Other Pages -->
             <?php
-            $allowed_pages = ['member', 'staff', 'menu', 'kategori', 'pesanan', 'reward', 'penukaran', 'feedback'];
-            if (in_array($page, $allowed_pages)) {
-                include "kelola_{$page}.php";
+            $page_file_map = [
+                'member' => 'kelola_member.php',
+                'staff' => 'kelola_staff.php',
+                'menu' => 'kelola_menu.php',
+                'kategori' => 'kelola_kategori.php',
+                'pesanan' => 'kelola_pesanan.php',
+                'reward' => 'kelola_reward.php',
+                'penukaran' => 'kelola_penukaran.php',
+                'feedback' => 'kelola_feedback.php',
+            ];
+            
+            if (array_key_exists($page, $page_file_map)) {
+                include $page_file_map[$page];
             } else {
                 echo "<p class='text-red-500'>Halaman tidak ditemukan.</p>";
             }

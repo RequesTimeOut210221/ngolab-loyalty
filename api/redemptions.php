@@ -1,71 +1,88 @@
 <?php
 header('Content-Type: application/json');
-session_start();
-require_once 'db.php'; // koneksi ke database
+require_once '../koneksi.php';
 
-$user_id = $_SESSION['user_id'] ?? null;
-if (!$user_id) {
-    echo json_encode(["success" => false, "message" => "User belum login"]);
+function current_user(mysqli $conn): ?array {
+    $headers = getallheaders();
+    $api_key = $headers['x-api-key'] ?? $headers['X-Api-Key'] ?? '';
+    if ($api_key === '') return null;
+
+    $stmt = $conn->prepare("SELECT * FROM TABEL_USER WHERE api_key = ?");
+    $stmt->bind_param("s", $api_key);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc();
+    return $user ?: null;
+}
+
+$user = current_user($conn);
+if (!$user) {
+    echo json_encode(['status' => 'error', 'message' => 'Invalid API Key']);
     exit;
 }
 
-$method = $_SERVER['REQUEST_METHOD'];
-
-if ($method === 'POST') {
-    // Ambil data JSON dari request
-    $input = json_decode(file_get_contents('php://input'), true);
-    $reward_id = $input['reward_id'] ?? null;
-
-    if (!$reward_id) {
-        echo json_encode(["success" => false, "message" => "Reward ID wajib"]);
-        exit;
-    }
-
-    // Ambil info reward
-    $reward = $db->query("SELECT * FROM rewards WHERE id = $reward_id")->fetch_assoc();
-    if (!$reward) {
-        echo json_encode(["success" => false, "message" => "Reward tidak ditemukan"]);
-        exit;
-    }
-
-    // Ambil poin user
-    $user = $db->query("SELECT points FROM members WHERE id = $user_id")->fetch_assoc();
-    $points = $user['points'];
-
-    if ($points < $reward['cost_points']) {
-        echo json_encode(["success" => false, "message" => "Poin tidak cukup"]);
-        exit;
-    }
-
-    // Kurangi poin & simpan transaksi
-    $db->query("UPDATE members SET points = points - {$reward['cost_points']} WHERE id = $user_id");
-    $db->query("INSERT INTO redemptions (user_id, reward_id, date, status) VALUES ($user_id, $reward_id, NOW(), 'Approved')");
-
-    // Ambil poin terbaru
-    $updated = $db->query("SELECT points FROM members WHERE id = $user_id")->fetch_assoc();
-
-    echo json_encode([
-        "success" => true,
-        "message" => "Reward berhasil ditukar",
-        "remaining_points" => $updated['points']
-    ]);
-}
-
-elseif ($method === 'GET') {
-    $result = $db->query("SELECT r.id, rw.name AS reward_name, r.date, r.status 
-                          FROM redemptions r 
-                          JOIN rewards rw ON r.reward_id = rw.id 
-                          WHERE r.user_id = $user_id 
-                          ORDER BY r.date DESC");
-
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $stmt = $conn->prepare("
+        SELECT p.*, r.nama_reward, r.poin_dibutuhkan
+        FROM TABEL_PENUKARAN_REWARD p
+        JOIN TABEL_REWARD r ON r.id_reward = p.id_reward
+        WHERE p.id_user = ?
+        ORDER BY p.tanggal_tukar DESC
+    ");
+    $stmt->bind_param("i", $user['id_user']);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $history = [];
     while ($row = $result->fetch_assoc()) {
         $history[] = $row;
     }
-
     echo json_encode($history);
+    exit;
 }
 
-else {
-    echo json_encode(["success" => false, "message" => "Method tidak didukung"]);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true) ?: [];
+    $id_reward = (int)($data['id_reward'] ?? $data['reward_id'] ?? 0);
+
+    $stmt = $conn->prepare("SELECT * FROM TABEL_REWARD WHERE id_reward = ?");
+    $stmt->bind_param("i", $id_reward);
+    $stmt->execute();
+    $reward = $stmt->get_result()->fetch_assoc();
+
+    if (!$reward) {
+        echo json_encode(['status' => 'error', 'message' => 'Reward tidak ditemukan.']);
+        exit;
+    }
+
+    if ((int)$user['saldo_poin'] < (int)$reward['poin_dibutuhkan']) {
+        echo json_encode(['status' => 'error', 'message' => 'Poin tidak cukup.']);
+        exit;
+    }
+
+    $conn->begin_transaction();
+    try {
+        $stmt = $conn->prepare("UPDATE TABEL_USER SET saldo_poin = saldo_poin - ? WHERE id_user = ?");
+        $stmt->bind_param("ii", $reward['poin_dibutuhkan'], $user['id_user']);
+        $stmt->execute();
+
+        $status = ((int)$id_reward === 1) ? 'berhasil' : 'pending';
+        $token_wifi = ((int)$id_reward === 1) ? 'WIFI-VIP-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 6)) : null;
+        $stmt = $conn->prepare("INSERT INTO TABEL_PENUKARAN_REWARD (id_user, id_reward, status, token_wifi) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("iiss", $user['id_user'], $id_reward, $status, $token_wifi);
+        $stmt->execute();
+
+        $conn->commit();
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Reward berhasil ditukar.',
+            'token_wifi' => $token_wifi,
+            'current_points' => (int)$user['saldo_poin'] - (int)$reward['poin_dibutuhkan']
+        ]);
+    } catch (Throwable $e) {
+        $conn->rollback();
+        echo json_encode(['status' => 'error', 'message' => 'Gagal menukar reward: ' . $e->getMessage()]);
+    }
+    exit;
 }
+
+echo json_encode(['status' => 'error', 'message' => 'Method tidak didukung.']);
+?>

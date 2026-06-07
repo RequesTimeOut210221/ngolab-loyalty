@@ -287,18 +287,18 @@ async function request(url, options = {}) {
 // API functions
 const ApiService = {
   // 👥 MEMBER 1: AUTHENTICATION
-  async login(phone) {
+  async login(phone, password = "") {
     const res = await request(
       `${API_CONFIG.baseUrl}/api/auth.php?action=login`,
       {
         method: "POST",
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ phone, password }),
       },
     );
 
     if (res._mock) {
       // Mock Login behavior
-      if (phone === "1202210045" || phone === "08123456789") {
+      if ((phone === "1202210045" || phone === "08123456789") && (!password || password === "123456")) {
         const mockKey = "ng-mock-apikey-budi-1202210045";
         SessionManager.setSession(
           mockKey,
@@ -314,15 +314,24 @@ const ApiService = {
         return { status: "error", message: "User not found" };
       }
     }
+    if (res.status === "success" && res.role === "member" && res.key && res.user) {
+      SessionManager.setSession(
+        res.key,
+        res.user.username,
+        res.user.email,
+        res.user.saldo_poin,
+        res.user.nim || res.user.no_hp || "",
+      );
+    }
     return res;
   },
 
-  async register(username, email, phone) {
+  async register(username, email, phone, password = "") {
     const res = await request(
       `${API_CONFIG.baseUrl}/api/auth.php?action=register`,
       {
         method: "POST",
-        body: JSON.stringify({ username, email, phone }),
+        body: JSON.stringify({ username, email, phone, password }),
       },
     );
 
@@ -337,6 +346,9 @@ const ApiService = {
       ); // 10 points Welcome Bonus
       showToast("Registrasi Berhasil! Selamat datang (+10 Poin Welcome Bonus)");
       return { status: "success", key: mockKey };
+    }
+    if (res.status === "success" && res.key) {
+      SessionManager.setSession(res.key, username, email, 10, phone.substring(0, 10));
     }
     return res;
   },
@@ -358,7 +370,15 @@ const ApiService = {
         localStorage.getItem("ngolab_nim") || MOCK_DB.profile.nim;
       return MOCK_DB.profile;
     }
-    return res;
+    return res.map((menu) => ({
+      ...menu,
+      id_menu: Number(menu.id_menu || menu.id),
+      kategori: menu.kategori || menu.category || "",
+      category: menu.category || menu.kategori || "",
+      gambar_menu: menu.gambar_menu || (menu.gambar ? `uploads/menus/${menu.gambar}` : ""),
+      description: menu.description || menu.deskripsi || "",
+      poin_didapat: Number(menu.poin_didapat || Math.floor(Number(menu.harga || 0) / 10000)),
+    }));
   },
 
   async updateProfile(name, avatarFile) {
@@ -396,7 +416,14 @@ const ApiService = {
       showToast("Profil berhasil diperbarui!");
       return { status: "success" };
     }
-    return res;
+    return res.map((reward) => ({
+      ...reward,
+      id_reward: Number(reward.id_reward || reward.id),
+      nama_reward: reward.nama_reward || reward.name || reward.nama || "",
+      poin_dibutuhkan: Number(reward.poin_dibutuhkan || reward.cost_points || reward.points || 0),
+      stok: Number(reward.stok || reward.stock || 0),
+      gambar: reward.gambar || reward.image || "https://placehold.co/300x300?text=Reward",
+    }));
   },
 
   // 👥 MEMBER 2: CATALOG & REVIEWS

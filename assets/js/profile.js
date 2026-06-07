@@ -1,4 +1,3 @@
-
 import { ApiService, SessionManager, showToast } from './api.js';
 import { initUserData, switchTab } from './app.js';
 
@@ -152,51 +151,6 @@ async function redeemItem(id_reward) {
 // Hook up functions globally
 window.ProfileActions = {
   redeemItem,
-  refreshRewards: setupRedeemCatalog,
-  claimShareBonus
+  refreshRewards: setupRedeemCatalog
 };
-
-// 🎁 Claim Share Bonus +10 Poin
-async function claimShareBonus() {
-
-  const confirmShare = confirm(
-    'Claim bonus share Instagram/X +10 poin?'
-  );
-
-  if (!confirmShare) return;
-
-  try {
-
-    const response = await fetch('api/share_bonus.php', {
-      method: 'POST'
-    });
-
-    const res = await response.json();
-
-    if (res.status === 'success') {
-
-      showToast(
-        '+10 poin berhasil ditambahkan!',
-        'success'
-      );
-
-      await initUserData();
-
-    } else {
-
-      showToast(
-        res.message || 'Bonus sudah pernah diklaim',
-        'error'
-      );
-
-    }
-
-  } catch (error) {
-
-    showToast(
-      'Gagal terhubung ke server.',
-      'error'
-    );
-
-  }
-}
+export { setupRedeemCatalog };

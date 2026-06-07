@@ -7,7 +7,7 @@ Sesuai ketentuan proyek, masing-masing anggota minimal wajib membuat:
 
 ---
 
-## 👥 MEMBER 1: MANAJEMEN PENGGUNA & AUTHENTICATION
+## 👥 MEMBER 1: MANAJEMEN PENGGUNA & AUTHENTICATION - Mas'ud
 Fokus pada alur pendaftaran, login gabungan (Unified Login), otentikasi API Key, serta pengelolaan profil & data pengguna.
 
 ### 🛠️ 1. CRUD (Full PHP - Admin Panel)
@@ -36,7 +36,7 @@ Fokus pada alur pendaftaran, login gabungan (Unified Login), otentikasi API Key,
 
 ---
 
-## 👥 MEMBER 2: MANAJEMEN KATALOG & ULASAN (CONTENT & REVIEWS)
+## 👥 MEMBER 2: MANAJEMEN KATALOG & ULASAN (CONTENT & REVIEWS) - Ayesha
 Fokus pada pengelolaan menu kafe/bakso (Hybrid Catalog), kategori menu, serta sistem ulasan pelanggan (Feedback).
 
 ### 🛠️ 1. CRUD (Full PHP - Admin Panel)
@@ -67,7 +67,7 @@ Fokus pada pengelolaan menu kafe/bakso (Hybrid Catalog), kategori menu, serta si
 
 ---
 
-## 👥 MEMBER 3: TRANSAKSI & REDEMPTION (LOYALTY SYSTEM)
+## 👥 MEMBER 3: TRANSAKSI & REDEMPTION (LOYALTY SYSTEM) - Shaena
 Fokus pada alur belanja mandiri (Self-Order Checkout), penukaran poin (Redemption), dan penyesuaian saldo poin member berdasarkan status pesanan.
 
 ### 🛠️ 1. CRUD (Full PHP - Admin Panel)

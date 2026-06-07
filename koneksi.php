@@ -1,7 +1,7 @@
 <?php
-$host = "lamp-db";
+$host = "localhost";
 $user = "root";
-$pass = "root";
+$pass = "";
 $db = "ngolab_loyalty";
 
 $conn = new mysqli($host, $user, $pass, $db);

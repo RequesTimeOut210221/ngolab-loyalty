@@ -500,23 +500,6 @@ function renderCatalogCards() {
 
 // 🛒 Shopping Cart System
 function setupCartDrawer() {
-  const cartToggleBtn = document.getElementById('cart-toggle-btn');
-  const cartCloseBtn = document.getElementById('cart-close-btn');
-  const backdrop = document.getElementById('cart-drawer-backdrop');
-  const drawer = document.getElementById('cart-drawer');
-  
-  if (cartToggleBtn && cartCloseBtn && backdrop && drawer) {
-    const toggle = () => {
-      drawer.classList.toggle('translate-x-full');
-      backdrop.classList.toggle('opacity-0');
-      backdrop.classList.toggle('pointer-events-none');
-    };
-    
-    cartToggleBtn.addEventListener('click', toggle);
-    cartCloseBtn.addEventListener('click', toggle);
-    backdrop.addEventListener('click', toggle);
-  }
-  
   // Checkout Button
   const checkoutForm = document.getElementById('checkout-form');
   if (checkoutForm) {
@@ -579,14 +562,6 @@ function addToCart(id_menu) {
   
   updateCartUI();
   showToast(`Ditambahkan ke keranjang: ${menuItem.nama_menu}`);
-  
-  // Automatically slide open the drawer
-  const drawer = document.getElementById('cart-drawer');
-  const backdrop = document.getElementById('cart-drawer-backdrop');
-  if (drawer && backdrop) {
-    drawer.classList.remove('translate-x-full');
-    backdrop.classList.remove('opacity-0', 'pointer-events-none');
-  }
 }
 
 function updateCartUI() {
@@ -776,6 +751,15 @@ window.AppActions = {
   addToCart,
   adjustQty,
   switchTab,
+  toggleCart: () => {
+    const drawer = document.getElementById('cart-drawer');
+    const backdrop = document.getElementById('cart-drawer-backdrop');
+    if (drawer && backdrop) {
+      drawer.classList.toggle('translate-x-full');
+      backdrop.classList.toggle('opacity-0');
+      backdrop.classList.toggle('pointer-events-none');
+    }
+  },
   logout: () => {
     const confirmLogout = confirm('Apakah Anda yakin ingin keluar?');
     if (confirmLogout) {

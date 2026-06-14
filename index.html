@@ -110,6 +110,7 @@
             <!-- Cart Indicator Button -->
             <button
               id="cart-toggle-btn"
+              onclick="window.AppActions.toggleCart()"
               class="relative p-2 rounded-full hover:bg-slate-700 transition duration-150"
             >
               <span class="text-xl">🛒</span>
@@ -567,6 +568,7 @@
     <!-- Backdrop -->
     <div
       id="cart-drawer-backdrop"
+      onclick="window.AppActions.toggleCart()"
       class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 opacity-0 pointer-events-none drawer-backdrop"
     ></div>
 
@@ -585,6 +587,7 @@
         </div>
         <button
           id="cart-close-btn"
+          onclick="window.AppActions.toggleCart()"
           class="text-white hover:text-gray-300 text-xl font-bold"
         >
           &times;
@@ -686,8 +689,8 @@
     </nav>
 
     <!-- Script Modules -->
-    <script type="module" src="assets/js/api.js?v=3"></script>
-    <script type="module" src="assets/js/app.js?v=3"></script>
-    <script type="module" src="assets/js/profile.js?v=3"></script>
+    <script type="module" src="assets/js/api.js?v=4"></script>
+    <script type="module" src="assets/js/app.js?v=4"></script>
+    <script type="module" src="assets/js/profile.js?v=4"></script>
   </body>
 </html>

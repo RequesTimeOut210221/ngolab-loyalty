@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `TABEL_PESANAN` (
   `total_harga` INT NOT NULL,
   `poin_didapat` INT NOT NULL,
   `catatan_pesanan` TEXT,
-  `status` ENUM('pending', 'diproses', 'selesai') NOT NULL DEFAULT 'pending',
+  `status` ENUM('pending', 'diproses', 'selesai', 'canceled') NOT NULL DEFAULT 'pending',
   `tanggal_pesan` DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`id_member`) REFERENCES `TABEL_MEMBER`(`id_member`) ON DELETE CASCADE,
   FOREIGN KEY (`id_menu`) REFERENCES `TABEL_MENU`(`id_menu`) ON DELETE CASCADE

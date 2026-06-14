@@ -1,4 +1,6 @@
-<?php if (!defined('IN_ADMIN')) exit('No direct script access allowed'); ?>
+<?php
+/* Author: Shaena */
+ if (!defined('IN_ADMIN')) exit('No direct script access allowed'); ?>
   <style>
     :root {
       --sidebar-bg: #0F172A;

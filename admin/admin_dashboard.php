@@ -1,4 +1,6 @@
 <?php
+/* Author: Mas'ud */
+
 session_start();
 require_once '../koneksi.php';
 

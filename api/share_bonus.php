@@ -1,4 +1,6 @@
 <?php
+/* Author: Shaena */
+
 header('Content-Type: application/json');
 require_once '../koneksi.php';
 
@@ -10,7 +12,7 @@ if ($api_key === '') {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT id_user, is_shared_sosmed, saldo_poin FROM TABEL_USER WHERE api_key = ?");
+$stmt = $conn->prepare("SELECT id_member, is_shared_sosmed, saldo_poin FROM TABEL_MEMBER WHERE api_key = ?");
 $stmt->bind_param("s", $api_key);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -25,8 +27,8 @@ if ((int)$user['is_shared_sosmed'] === 1) {
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE TABEL_USER SET saldo_poin = saldo_poin + 10, is_shared_sosmed = 1 WHERE id_user = ?");
-$stmt->bind_param("i", $user['id_user']);
+$stmt = $conn->prepare("UPDATE TABEL_MEMBER SET saldo_poin = saldo_poin + 10, is_shared_sosmed = 1 WHERE id_member = ?");
+$stmt->bind_param("i", $user['id_member']);
 $stmt->execute();
 
 $current_points = (int)$user['saldo_poin'] + 10;

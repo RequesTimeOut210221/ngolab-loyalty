@@ -1,4 +1,6 @@
 <?php
+/* Author: Mas'ud */
+
 header('Content-Type: application/json');
 require_once '../koneksi.php';
 
@@ -11,7 +13,7 @@ if (empty($api_key)) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT * FROM TABEL_USER WHERE api_key = ?");
+$stmt = $conn->prepare("SELECT * FROM TABEL_MEMBER WHERE api_key = ?");
 $stmt->bind_param("s", $api_key);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -53,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
             
             $file_extension = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
-            $file_name = 'avatar_' . $user['id_user'] . '_' . time() . '.' . $file_extension;
+            $file_name = 'avatar_' . $user['id_member'] . '_' . time() . '.' . $file_extension;
             $target_file = $upload_dir . $file_name;
             
             if (move_uploaded_file($_FILES['avatar']['tmp_name'], $target_file)) {
@@ -62,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
         }
         
-        $update_stmt = $conn->prepare("UPDATE TABEL_USER SET username = ?, avatar = ? WHERE id_user = ?");
-        $update_stmt->bind_param("ssi", $username, $avatar_url, $user['id_user']);
+        $update_stmt = $conn->prepare("UPDATE TABEL_MEMBER SET username = ?, avatar = ? WHERE id_member = ?");
+        $update_stmt->bind_param("ssi", $username, $avatar_url, $user['id_member']);
         
         if ($update_stmt->execute()) {
             echo json_encode(['status' => 'success', 'message' => 'Profile updated', 'avatar' => $avatar_url]);

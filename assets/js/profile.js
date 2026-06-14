@@ -8,6 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
   setupRedeemCatalog();
 });
 
+// Global State for Rewards
+let stateRewards = [];
+let rewardSearch = '';
+let rewardCategory = 'all';
+
 // 👤 Setup Profile Details & Avatar Photo Editor
 function setupProfileForm() {
   const profileForm = document.getElementById('profile-edit-form');
@@ -70,10 +75,12 @@ function setupProfileForm() {
   }
 }
 
-// 🎁 Load and Render Rewards catalog for redemption
 async function setupRedeemCatalog() {
   const grid = document.getElementById('rewards-catalog-grid');
   if (!grid) return;
+
+  const searchInput = document.getElementById('reward-search-input');
+  const catFilter = document.getElementById('reward-category-filter');
 
   grid.innerHTML = Array(3).fill(0).map(() => `
     <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 flex items-center space-x-4">
@@ -87,43 +94,75 @@ async function setupRedeemCatalog() {
 
   try {
     const rewards = await ApiService.getRewards();
-    const currentPoints = SessionManager.getPoints();
+    stateRewards = rewards;
 
-    if (rewards.length === 0) {
-      grid.innerHTML = `<div class="py-4 text-center text-gray-400">Tidak ada item reward tersedia.</div>`;
-      return;
+    if (catFilter && catFilter.options.length <= 1) {
+      const cats = [...new Set(rewards.flatMap(r => r.nama_kategori ? [r.nama_kategori] : []))];
+      catFilter.innerHTML = `<option value="all">Semua Kategori</option>` +
+        cats.map(c => `<option value="${c.toLowerCase()}">${c}</option>`).join('');
+        
+      catFilter.addEventListener('change', (e) => {
+        rewardCategory = e.target.value;
+        renderRewards();
+      });
+      
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          rewardSearch = e.target.value.toLowerCase().trim();
+          renderRewards();
+        });
+      }
     }
 
-    grid.innerHTML = rewards.map(reward => {
-      const isAffordable = currentPoints >= reward.poin_dibutuhkan;
-      const btnColor = isAffordable 
-        ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-sm' 
-        : 'bg-gray-100 text-gray-400 cursor-not-allowed';
-      
-      return `
-        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 flex items-center justify-between hover-scale">
-          <div class="flex items-center space-x-4">
-            <img src="${reward.gambar}" alt="${reward.nama_reward}" class="w-16 h-16 rounded-xl object-cover">
-            <div>
-              <h5 class="text-sm font-bold text-slate-800 leading-tight">${reward.nama_reward}</h5>
-              <span class="text-xs font-semibold text-orange-500 mt-1 inline-block bg-orange-50 px-2 py-0.5 rounded-md">
-                ${reward.poin_dibutuhkan} Poin
-              </span>
-              <span class="text-[10px] text-gray-400 block mt-1">Stok: ${reward.stok}</span>
-            </div>
-          </div>
-          
-          <button class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${btnColor}"
-                  onclick="window.ProfileActions.redeemItem(${reward.id_reward})"
-                  ${!isAffordable ? 'disabled' : ''}>
-            Tukar Poin
-          </button>
-        </div>
-      `;
-    }).join('');
+    renderRewards();
   } catch (error) {
     grid.innerHTML = `<div class="py-4 text-center text-red-500">Gagal memuat katalog reward.</div>`;
   }
+}
+
+function renderRewards() {
+  const grid = document.getElementById('rewards-catalog-grid');
+  const currentPoints = SessionManager.getPoints();
+
+  const filtered = stateRewards.filter(r => {
+    const catMatch = rewardCategory === 'all' || (r.nama_kategori && r.nama_kategori.toLowerCase() === rewardCategory);
+    const searchMatch = rewardSearch === '' || (r.nama_reward && r.nama_reward.toLowerCase().includes(rewardSearch));
+    return catMatch && searchMatch;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="col-span-full py-4 text-center text-gray-400">Tidak ada item reward yang sesuai filter.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(reward => {
+    const isAffordable = currentPoints >= reward.poin_dibutuhkan;
+    const btnColor = isAffordable 
+      ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-sm' 
+      : 'bg-gray-100 text-gray-400 cursor-not-allowed';
+    
+    return `
+      <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 flex items-center justify-between hover-scale">
+        <div class="flex items-center space-x-4">
+          <img src="${reward.gambar}" alt="${reward.nama_reward}" class="w-16 h-16 rounded-xl object-cover">
+          <div>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">${reward.nama_kategori || 'General'}</span>
+            <h5 class="text-sm font-bold text-slate-800 leading-tight mt-1">${reward.nama_reward}</h5>
+            <span class="text-xs font-semibold text-orange-500 mt-1 inline-block bg-orange-50 px-2 py-0.5 rounded-md">
+              ${reward.poin_dibutuhkan} Poin
+            </span>
+            <span class="text-[10px] text-gray-400 block mt-1">Stok: ${reward.stok}</span>
+          </div>
+        </div>
+        
+        <button class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${btnColor}"
+                onclick="window.ProfileActions.redeemItem(${reward.id_reward})"
+                ${!isAffordable ? 'disabled' : ''}>
+          Tukar Poin
+        </button>
+      </div>
+    `;
+  }).join('');
 }
 
 async function redeemItem(id_reward) {

@@ -5,6 +5,7 @@ const AppState = {
   activeTab: 'home',
   cart: [],
   selectedCategory: 'all',
+  menuSearch: '',
   menus: [],
   user: null
 };
@@ -406,53 +407,28 @@ async function loadCatalog() {
 }
 
 async function setupCategoryFilters() {
-  const dynamicContainer = document.getElementById('category-filter-container');
-  if (dynamicContainer) {
-    const categories = await ApiService.getCategories();
-    dynamicContainer.innerHTML = `
-      <button data-cat="all" class="cat-filter-btn shrink-0 px-5 py-2.5 text-sm font-bold rounded-xl transition bg-white text-orange-600 shadow-sm snap-start border border-gray-100">Semua Menu</button>
-      ${categories.map((cat) => {
-        const value = (cat.nama_kategori || cat.kategori || '').toLowerCase();
-        return `<button data-cat="${value}" class="cat-filter-btn shrink-0 px-5 py-2.5 text-sm font-bold rounded-xl transition text-gray-500 hover:text-slate-800 hover:bg-gray-300/40 snap-start border border-transparent">${cat.nama_kategori}</button>`;
-      }).join('')}
-    `;
-
-    document.querySelectorAll('.cat-filter-btn').forEach((btn) => {
-      btn.onclick = () => {
-        document.querySelectorAll('.cat-filter-btn').forEach((item) => {
-          item.className = 'cat-filter-btn shrink-0 px-5 py-2.5 text-sm font-bold rounded-xl transition text-gray-500 hover:text-slate-800 hover:bg-gray-300/40 snap-start border border-transparent';
-        });
-        btn.className = 'cat-filter-btn shrink-0 px-5 py-2.5 text-sm font-bold rounded-xl transition bg-white text-orange-600 shadow-sm snap-start border border-gray-100';
-        AppState.selectedCategory = btn.getAttribute('data-cat') || 'all';
-        renderCatalogCards();
-      };
-    });
-    return;
-  }
-
-  const btnCafe = document.getElementById('filter-cafe-btn');
-  const btnBakso = document.getElementById('filter-bakso-btn');
+  const selectFilter = document.getElementById('menu-category-filter');
+  const searchInput = document.getElementById('menu-search-input');
   
-  if (btnCafe && btnBakso) {
-    btnCafe.onclick = () => {
-      btnCafe.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
-      btnCafe.classList.remove('text-gray-500');
-      btnBakso.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
-      btnBakso.classList.add('text-gray-500');
+  if (selectFilter) {
+    const categories = await ApiService.getCategories();
+    selectFilter.innerHTML = `<option value="all">Semua Kategori</option>` + 
+      categories.map(cat => {
+        const value = (cat.nama_kategori || cat.kategori || '').toLowerCase();
+        return `<option value="${value}">${cat.nama_kategori}</option>`;
+      }).join('');
       
-      AppState.selectedCategory = 'cafe';
+    selectFilter.addEventListener('change', (e) => {
+      AppState.selectedCategory = e.target.value;
       renderCatalogCards();
-    };
-    
-    btnBakso.onclick = () => {
-      btnBakso.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
-      btnBakso.classList.remove('text-gray-500');
-      btnCafe.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
-      btnCafe.classList.add('text-gray-500');
-      
-      AppState.selectedCategory = 'bakso';
+    });
+  }
+  
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      AppState.menuSearch = e.target.value.toLowerCase().trim();
       renderCatalogCards();
-    };
+    });
   }
 }
 
@@ -460,12 +436,14 @@ function renderCatalogCards() {
   const grid = document.getElementById('catalog-grid');
   if (!grid) return;
   
-  const filtered = AppState.selectedCategory === 'all' || AppState.selectedCategory === ''
-    ? AppState.menus 
-    : AppState.menus.filter(m => m.category === AppState.selectedCategory);
+  const filtered = AppState.menus.filter(m => {
+    const catMatch = AppState.selectedCategory === 'all' || AppState.selectedCategory === '' || m.category === AppState.selectedCategory || m.kategori.toLowerCase() === AppState.selectedCategory;
+    const searchMatch = AppState.menuSearch === '' || m.nama_menu.toLowerCase().includes(AppState.menuSearch) || (m.description || '').toLowerCase().includes(AppState.menuSearch);
+    return catMatch && searchMatch;
+  });
     
   if (filtered.length === 0) {
-    grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400">Tidak ada menu tersedia di kategori ini.</div>`;
+    grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400">Tidak ada menu yang sesuai.</div>`;
     return;
   }
   
@@ -477,8 +455,8 @@ function renderCatalogCards() {
         <div>
           <img src="${imageSrc}" alt="${item.nama_menu}" class="h-40 w-full object-cover">
           <div class="p-4">
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${item.category === 'cafe' ? 'bg-orange-100 text-orange-600' : 'bg-slate-100 text-slate-600'}">
-              ${item.category === 'cafe' ? 'Ngo+Lab Cafe' : 'Bakso Mas Yanto'}
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+              ${item.kategori || 'General'}
             </span>
             <h4 class="font-bold text-slate-800 mt-2 text-base leading-tight">${item.nama_menu}</h4>
             <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.description || ''}</p>

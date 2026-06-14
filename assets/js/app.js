@@ -267,8 +267,34 @@ async function initUserData() {
     // Render views
     renderHomeView();
     updateNavbarUserInfo();
+    
+    // Start background live sync every 5 seconds
+    setInterval(syncUserData, 5000);
   } catch (error) {
     console.error('Failed to load profile', error);
+  }
+}
+
+// 🔄 Live Sync User Data
+async function syncUserData() {
+  if (!SessionManager.isLoggedIn()) return;
+  try {
+    const user = await ApiService.getProfile();
+    if (AppState.user && AppState.user.saldo_poin !== user.saldo_poin) {
+      AppState.user.saldo_poin = user.saldo_poin;
+      SessionManager.setPoints(user.saldo_poin);
+      updateNavbarUserInfo();
+      
+      // If user is currently viewing the profile or rewards tab, we might want to refresh it
+      if (AppState.activeTab === 'profil') {
+          if (typeof renderProfileView === 'function') renderProfileView();
+      }
+      if (AppState.activeTab === 'reward') {
+          if (window.ProfileActions && window.ProfileActions.refreshRewards) window.ProfileActions.refreshRewards();
+      }
+    }
+  } catch (error) {
+    // Silently fail on background sync errors
   }
 }
 
@@ -293,18 +319,23 @@ function renderHomeView() {
   document.getElementById('points-balance').textContent = `${currentPoints} POIN`;
   
   // Handle Tier Level Visual Styles
-  const idCard = document.getElementById('digital-id-card');
+  const idBorder = document.getElementById('digital-id-border');
   const tierBadge = document.getElementById('member-tier-badge');
-  if (idCard && tierBadge) {
-    idCard.className = 'rounded-2xl p-6 shadow-xl relative overflow-hidden transition-all duration-500 ';
+  if (idBorder && tierBadge) {
+    const baseBorderClasses = 'rounded-3xl p-1 shadow-lg hover:-translate-y-1 transition-transform duration-300 bg-gradient-to-br ';
+    const baseTextClasses = 'text-xs font-bold tracking-widest uppercase ';
+    
     if (currentPoints < 20) {
-      idCard.classList.add('id-card-bronze');
+      idBorder.className = baseBorderClasses + 'from-orange-500 to-amber-400';
+      tierBadge.className = baseTextClasses + 'text-orange-400';
       tierBadge.textContent = 'Bronze Member';
     } else if (currentPoints < 50) {
-      idCard.classList.add('id-card-silver');
+      idBorder.className = baseBorderClasses + 'from-slate-400 to-gray-300';
+      tierBadge.className = baseTextClasses + 'text-slate-300';
       tierBadge.textContent = 'Silver Member';
     } else {
-      idCard.classList.add('id-card-gold');
+      idBorder.className = baseBorderClasses + 'from-yellow-400 to-amber-500';
+      tierBadge.className = baseTextClasses + 'text-yellow-400';
       tierBadge.textContent = 'Gold Member';
     }
   }

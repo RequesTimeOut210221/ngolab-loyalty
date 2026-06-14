@@ -38,12 +38,13 @@ function showToast(message, type = "success") {
     <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg ${iconColor}">
       ${iconSvg}
     </div>
-    <div class="ms-3 text-sm font-normal">${message}</div>
+    <div class="ms-3 text-sm font-normal"></div>
     <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" data-dismiss-target="#toast-success" aria-label="Close" onclick="this.parentElement.remove()">
       <span class="sr-only">Close</span>
       <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path></svg>
     </button>
   `;
+  toast.querySelector('.ms-3').textContent = message;
 
   container.appendChild(toast);
 
@@ -59,34 +60,59 @@ function showToast(message, type = "success") {
   }, 4000);
 }
 
+// Local Storage Cache for better performance
+const storageCache = new Map();
+window.addEventListener('storage', (e) => {
+  if (e.key && storageCache.has(e.key)) {
+    storageCache.set(e.key, e.newValue);
+  }
+});
+
+function getCachedStorage(key) {
+  if (!storageCache.has(key)) {
+    storageCache.set(key, localStorage.getItem(key));
+  }
+  return storageCache.get(key);
+}
+
+function setCachedStorage(key, value) {
+  storageCache.set(key, value);
+  localStorage.setItem(key, value);
+}
+
+function removeCachedStorage(key) {
+  storageCache.delete(key);
+  localStorage.removeItem(key);
+}
+
 // Local Storage Session Helpers
 const SessionManager = {
   getApiKey() {
-    return localStorage.getItem("ngolab_api_key");
+    return getCachedStorage("ngolab_api_key");
   },
   setSession(apiKey, username, email, points = 10, nim = "") {
-    localStorage.setItem("ngolab_api_key", apiKey);
-    localStorage.setItem("ngolab_username", username);
-    localStorage.setItem("ngolab_email", email);
-    localStorage.setItem("ngolab_points", points);
-    localStorage.setItem("ngolab_nim", nim);
+    setCachedStorage("ngolab_api_key", apiKey);
+    setCachedStorage("ngolab_username", username);
+    setCachedStorage("ngolab_email", email);
+    setCachedStorage("ngolab_points", points);
+    setCachedStorage("ngolab_nim", nim);
   },
   clearSession() {
-    localStorage.removeItem("ngolab_api_key");
-    localStorage.removeItem("ngolab_username");
-    localStorage.removeItem("ngolab_email");
-    localStorage.removeItem("ngolab_points");
-    localStorage.removeItem("ngolab_nim");
-    localStorage.removeItem("ngolab_is_shared");
+    removeCachedStorage("ngolab_api_key");
+    removeCachedStorage("ngolab_username");
+    removeCachedStorage("ngolab_email");
+    removeCachedStorage("ngolab_points");
+    removeCachedStorage("ngolab_nim");
+    removeCachedStorage("ngolab_is_shared");
   },
   isLoggedIn() {
     return !!this.getApiKey();
   },
   getPoints() {
-    return parseInt(localStorage.getItem("ngolab_points") || "0", 10);
+    return parseInt(getCachedStorage("ngolab_points") || "0", 10);
   },
   setPoints(points) {
-    localStorage.setItem("ngolab_points", points);
+    setCachedStorage("ngolab_points", points);
   },
 };
 
@@ -370,11 +396,11 @@ const ApiService = {
       // Sync mock points from state
       MOCK_DB.profile.saldo_poin = SessionManager.getPoints();
       MOCK_DB.profile.username =
-        localStorage.getItem("ngolab_username") || MOCK_DB.profile.username;
+        getCachedStorage("ngolab_username") || MOCK_DB.profile.username;
       MOCK_DB.profile.email =
-        localStorage.getItem("ngolab_email") || MOCK_DB.profile.email;
+        getCachedStorage("ngolab_email") || MOCK_DB.profile.email;
       MOCK_DB.profile.nim =
-        localStorage.getItem("ngolab_nim") || MOCK_DB.profile.nim;
+        getCachedStorage("ngolab_nim") || MOCK_DB.profile.nim;
       return MOCK_DB.profile;
     }
     return res.map((menu) => ({
@@ -414,7 +440,7 @@ const ApiService = {
     );
 
     if (res._mock) {
-      localStorage.setItem("ngolab_username", name);
+      setCachedStorage("ngolab_username", name);
       if (avatarFile) {
         // Mock image preview URL
         const previewUrl = URL.createObjectURL(avatarFile);
@@ -462,7 +488,7 @@ const ApiService = {
   },
 
   async submitFeedback(rating, ulasan) {
-    const nama_user = localStorage.getItem("ngolab_username") || "Pelanggan Anonim";
+    const nama_user = getCachedStorage("ngolab_username") || "Pelanggan Anonim";
     const res = await request(`${API_CONFIG.baseUrl}/api/feedback.php`, {
       method: "POST",
       body: JSON.stringify({ rating, ulasan, nama_user }),
@@ -626,14 +652,14 @@ const ApiService = {
     });
 
     if (res._mock) {
-      if (localStorage.getItem("ngolab_is_shared") === "true") {
+      if (getCachedStorage("ngolab_is_shared") === "true") {
         showToast("Anda sudah mengklaim bonus share medsos!", "warning");
         return { status: "error", message: "Already claimed" };
       }
 
       const newPoints = SessionManager.getPoints() + 10;
       SessionManager.setPoints(newPoints);
-      localStorage.setItem("ngolab_is_shared", "true");
+      setCachedStorage("ngolab_is_shared", "true");
       MOCK_DB.profile.is_shared_sosmed = true;
       showToast("Klaim Bonus Berhasil! +10 Poin ditambahkan.");
       return { status: "success", current_points: newPoints };

@@ -115,5 +115,10 @@ INSERT INTO `TABEL_REWARD` (`nama_reward`, `poin_dibutuhkan`, `stok`, `gambar`) 
 ON DUPLICATE KEY UPDATE `stok` = VALUES(`stok`);
 
 INSERT INTO `TABEL_STAFF` (`username`, `email`, `password`, `role`, `no_hp`, `nim`) VALUES
-('Super Admin', 'admin@ngolab.com', SHA2('admin123', 256), 'superadmin', '081111111111', '1234567890')
+('Super Admin', 'admin@ngolab.com', SHA2('admin123', 256), 'superadmin', '081234567890', '1234567890')
 ON DUPLICATE KEY UPDATE `password` = VALUES(`password`), `role` = VALUES(`role`), `no_hp` = VALUES(`no_hp`), `nim` = VALUES(`nim`);
+
+INSERT INTO `TABEL_MEMBER` (`username`, `email`, `password`, `no_hp`, `nim`, `saldo_poin`, `is_shared_sosmed`) VALUES
+('Member A', 'memberA@ngolab.com', SHA2('member123', 256), '081234567891', '1234567891', 999, FALSE),
+('Member B', 'memberB@ngolab.com', SHA2('member123', 256), '081234567892', '1234567892', 0, FALSE)
+ON DUPLICATE KEY UPDATE `saldo_poin` = VALUES(`saldo_poin`), `is_shared_sosmed` = VALUES(`is_shared_sosmed`);

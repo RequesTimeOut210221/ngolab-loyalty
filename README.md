@@ -89,3 +89,34 @@ Untuk memastikan penggabungan kode (assessment 3) berjalan lancar tanpa konflik 
    * Jika Anda perlu memodifikasi DOM atau fungsi di `index.html`, `assets/js/app.js`, atau `assets/css/style.css`, **komunikasikan terlebih dahulu di grup** sebelum melakukan `git push` untuk menghindari bentrokan perubahan (conflict).
 4. **Penyimpanan File Upload:**
    * Pastikan gambar menu disimpan di `/assets/uploads/menus/`, gambar reward di `/assets/uploads/rewards/`, dan avatar profil di `/assets/uploads/profiles/`.
+
+---
+
+## 🚀 4. Cara Menggunakan Web & Akun Default
+
+Untuk memudahkan proses development dan testing, beberapa akun default telah disediakan di dalam database (sesuai file `database/schema.sql`). Anda dapat menggunakan kredensial ini untuk login tanpa harus mendaftar akun baru.
+
+### Akun Default
+
+#### 1. Administrator (Super Admin)
+- **No. HP / NIM:** `081234567890` / `1234567890`
+- **Email:** `admin@ngolab.com`
+- **Password:** `admin123`
+- **Akses:** Dashboard Admin (Kelola Pesanan, Reward, Penukaran).
+
+#### 2. Member A (Poin Maksimal)
+- **No. HP / NIM:** `081234567891` / `1234567891`
+- **Password:** `member123`
+- **Kondisi:** Memiliki saldo poin maksimal (`999` poin). Gunakan akun ini untuk menguji fitur penukaran poin (Redemption) secara langsung.
+
+#### 3. Member B (Poin Kosong)
+- **No. HP / NIM:** `081234567892` / `1234567892`
+- **Password:** `member123`
+- **Kondisi:** Memiliki saldo `0` poin. Gunakan akun ini untuk menguji alur pembuatan pesanan (Checkout) dan memvalidasi penambahan poin setelah pesanan diselesaikan oleh admin.
+
+### Alur Pengujian Fitur Utama (Testing Flow)
+1. **Self-Order Checkout:** Login sebagai **Member B**, buat pesanan. Poin belum bertambah karena status pesanan "pending".
+2. **Konfirmasi Pesanan:** Login sebagai **Super Admin**, ubah status pesanan Member B menjadi "selesai" (Lunas).
+3. **Validasi Poin:** Cek profil **Member B**, poin harus bertambah (kelipatan Rp 10.000 = 1 Poin).
+4. **Penukaran Poin (Redemption):** Login sebagai **Member A**, tukarkan poin dengan voucher/reward di Katalog Reward. Poin akan langsung berkurang.
+5. **Klaim Bonus Media Sosial:** Klik tombol share di profil untuk mendapatkan bonus +10 poin (hanya berlaku 1 kali).

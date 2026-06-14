@@ -2,7 +2,7 @@
 /* Author: Mas'ud */
 
 session_start();
-require_once '../koneksi.php';
+require_once '../config/koneksi.php';
 
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header('Location: ../index.html');
@@ -127,7 +127,7 @@ $page = $_GET['page'] ?? 'pos';
                 <p class="text-xs text-gray-400 mt-0.5">Input belanja pelanggan offline untuk memberikan poin loyalty.</p>
               </div>
 
-              <form id="pos-earn-form" class="space-y-4" onsubmit="alert('Fitur Suntik Poin Manual sedang dalam pengembangan.'); return false;">
+              <form id="pos-earn-form" class="space-y-4" onsubmit="showAdminModal('Info', 'Fitur Suntik Poin Manual sedang dalam pengembangan.', 'info'); return false;">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Nomor HP / NIM Member</label>
@@ -205,12 +205,89 @@ $page = $_GET['page'] ?? 'pos';
       </main>
     </div>
 
+    <!-- Global Admin Modal -->
+    <div id="admin-global-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeAdminModal()"></div>
+      <div class="bg-white rounded-2xl p-6 md:p-8 w-[90%] max-w-sm shadow-2xl relative z-10 transform scale-95 opacity-0 transition-all duration-300" id="admin-modal-content">
+        <div class="text-center">
+          <div id="admin-modal-icon" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-4">
+            <!-- Icon injected here -->
+          </div>
+          <h3 id="admin-modal-title" class="text-xl font-bold text-slate-800 mb-2">Title</h3>
+          <p id="admin-modal-message" class="text-sm text-gray-500 mb-6">Message content</p>
+          <button onclick="closeAdminModal()" class="w-full py-3 rounded-xl font-bold transition-all text-white" id="admin-modal-btn">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('hidden');
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('overlay').classList.toggle('open');
         }
+
+        function showAdminModal(title, message, type = 'success') {
+            const modal = document.getElementById('admin-global-modal');
+            const content = document.getElementById('admin-modal-content');
+            const icon = document.getElementById('admin-modal-icon');
+            const btn = document.getElementById('admin-modal-btn');
+            
+            document.getElementById('admin-modal-title').textContent = title;
+            document.getElementById('admin-modal-message').textContent = message;
+            
+            if (type === 'success') {
+                icon.className = 'w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-4 bg-green-100 text-green-500';
+                icon.innerHTML = '✓';
+                btn.className = 'w-full py-3 rounded-xl font-bold transition-all text-white bg-green-500 hover:bg-green-600';
+            } else if (type === 'error') {
+                icon.className = 'w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-4 bg-red-100 text-red-500';
+                icon.innerHTML = '✕';
+                btn.className = 'w-full py-3 rounded-xl font-bold transition-all text-white bg-red-500 hover:bg-red-600';
+            } else {
+                icon.className = 'w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-4 bg-orange-100 text-orange-500';
+                icon.innerHTML = 'ℹ';
+                btn.className = 'w-full py-3 rounded-xl font-bold transition-all text-white bg-orange-500 hover:bg-orange-600';
+            }
+            
+            modal.classList.remove('hidden');
+            // small delay for transition
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeAdminModal() {
+            const modal = document.getElementById('admin-global-modal');
+            const content = document.getElementById('admin-modal-content');
+            
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Intercept PHP default alerts
+        document.addEventListener('DOMContentLoaded', () => {
+            const successAlert = document.querySelector('.bg-green-100.text-green-700');
+            if (successAlert) {
+                const message = successAlert.innerText.trim();
+                successAlert.style.display = 'none';
+                showAdminModal('Berhasil!', message, 'success');
+            }
+            
+            const errorAlert = document.querySelector('.bg-red-100.text-red-700');
+            if (errorAlert) {
+                const message = errorAlert.innerText.trim();
+                errorAlert.style.display = 'none';
+                showAdminModal('Gagal!', message, 'error');
+            }
+        });
     </script>
 </body>
 </html>

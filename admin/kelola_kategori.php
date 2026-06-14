@@ -12,9 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'create') {
             $nama = $_POST['nama_kategori'];
             $deskripsi = $_POST['deskripsi'];
+            $parent_id = !empty($_POST['parent_id']) ? $_POST['parent_id'] : null;
             
-            $stmt = $conn->prepare("INSERT INTO TABEL_KATEGORI (nama_kategori, deskripsi) VALUES (?, ?)");
-            $stmt->bind_param("ss", $nama, $deskripsi);
+            $stmt = $conn->prepare("INSERT INTO TABEL_KATEGORI_MENU (nama_kategori, deskripsi, parent_id) VALUES (?, ?, ?)");
+            $stmt->bind_param("ssi", $nama, $deskripsi, $parent_id);
             if ($stmt->execute()) {
                 $message = "Kategori baru berhasil ditambahkan.";
             } else {
@@ -22,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } elseif ($action === 'delete') {
             $id = $_POST['id_kategori'];
-            $stmt = $conn->prepare("DELETE FROM TABEL_KATEGORI WHERE id_kategori=?");
+            $stmt = $conn->prepare("DELETE FROM TABEL_KATEGORI_MENU WHERE id_kategori=?");
             $stmt->bind_param("i", $id);
             if ($stmt->execute()) {
                 $message = "Kategori berhasil dihapus.";
@@ -33,9 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id_kategori'];
             $nama = $_POST['nama_kategori'];
             $deskripsi = $_POST['deskripsi'];
+            $parent_id = !empty($_POST['parent_id']) ? $_POST['parent_id'] : null;
             
-            $stmt = $conn->prepare("UPDATE TABEL_KATEGORI SET nama_kategori=?, deskripsi=? WHERE id_kategori=?");
-            $stmt->bind_param("ssi", $nama, $deskripsi, $id);
+            $stmt = $conn->prepare("UPDATE TABEL_KATEGORI_MENU SET nama_kategori=?, deskripsi=?, parent_id=? WHERE id_kategori=?");
+            $stmt->bind_param("ssii", $nama, $deskripsi, $parent_id, $id);
             if ($stmt->execute()) {
                 $message = "Kategori berhasil diupdate.";
             } else {
@@ -45,7 +47,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$kategori = mysqli_query($conn, "SELECT * FROM TABEL_KATEGORI ORDER BY id_kategori DESC");
+$kategori = mysqli_query($conn, "
+    SELECT k1.*, k2.nama_kategori AS parent_name 
+    FROM TABEL_KATEGORI_MENU k1 
+    LEFT JOIN TABEL_KATEGORI_MENU k2 ON k1.parent_id = k2.id_kategori 
+    ORDER BY k1.id_kategori DESC
+");
+$parent_options = mysqli_query($conn, "SELECT id_kategori, nama_kategori FROM TABEL_KATEGORI_MENU ORDER BY nama_kategori ASC");
+$options_html = '<option value="">-- Tidak Ada Parent (Kategori Utama) --</option>';
+while ($opt = mysqli_fetch_assoc($parent_options)) {
+    $options_html .= '<option value="' . $opt['id_kategori'] . '">' . htmlspecialchars($opt['nama_kategori']) . '</option>';
+}
+
 ?>
 
 <script>
@@ -55,10 +68,11 @@ $kategori = mysqli_query($conn, "SELECT * FROM TABEL_KATEGORI ORDER BY id_katego
     function closeCreateModal() {
         document.getElementById('createKategoriModal').classList.add('hidden');
     }
-    function openEditModal(id, nama, deskripsi) {
+    function openEditModal(id, nama, deskripsi, parent_id) {
         document.getElementById('edit_id_kategori').value = id;
         document.getElementById('edit_nama_kategori').value = nama;
         document.getElementById('edit_deskripsi').value = deskripsi;
+        document.getElementById('edit_parent_id').value = parent_id || "";
         document.getElementById('editKategoriModal').classList.remove('hidden');
     }
     function closeEditModal() {
@@ -86,6 +100,7 @@ $kategori = mysqli_query($conn, "SELECT * FROM TABEL_KATEGORI ORDER BY id_katego
                 <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                     <th class="py-3 px-6 text-left">ID</th>
                     <th class="py-3 px-6 text-left">Nama Kategori</th>
+                    <th class="py-3 px-6 text-left">Parent Kategori</th>
                     <th class="py-3 px-6 text-left">Deskripsi</th>
                     <th class="py-3 px-6 text-center">Aksi</th>
                 </tr>
@@ -100,11 +115,18 @@ $kategori = mysqli_query($conn, "SELECT * FROM TABEL_KATEGORI ORDER BY id_katego
                         <span class="font-bold capitalize block text-slate-800"><?= htmlspecialchars($row['nama_kategori']) ?></span>
                     </td>
                     <td class="py-3 px-6 text-left">
+                        <?php if ($row['parent_name']): ?>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded"><?= htmlspecialchars($row['parent_name']) ?></span>
+                        <?php else: ?>
+                            <span class="text-gray-400 text-sm italic">Utama</span>
+                        <?php endif; ?>
+                    </td>
+                    <td class="py-3 px-6 text-left">
                         <span class="text-gray-600"><?= htmlspecialchars($row['deskripsi']) ?></span>
                     </td>
                     <td class="py-3 px-6 text-center">
                         <div class="flex item-center justify-center space-x-3">
-                            <button onclick="openEditModal(<?= $row['id_kategori'] ?>, '<?= htmlspecialchars(addslashes($row['nama_kategori'])) ?>', '<?= htmlspecialchars(addslashes($row['deskripsi'])) ?>')" class="transform hover:text-blue-500 hover:scale-110">
+                            <button onclick="openEditModal(<?= $row['id_kategori'] ?>, '<?= htmlspecialchars(addslashes($row['nama_kategori'])) ?>', '<?= htmlspecialchars(addslashes($row['deskripsi'])) ?>', '<?= $row['parent_id'] ?>')" class="transform hover:text-blue-500 hover:scale-110">
                                 ✏️ Edit
                             </button>
                             <form method="POST" action="" class="inline" onsubmit="return confirm('Hapus kategori ini beserta menu di dalamnya?');">
@@ -137,6 +159,13 @@ $kategori = mysqli_query($conn, "SELECT * FROM TABEL_KATEGORI ORDER BY id_katego
                 <label class="block text-gray-700 text-sm font-bold mb-2">Nama Kategori</label>
                 <input type="text" name="nama_kategori" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Parent Kategori (Opsional)</label>
+                <select name="parent_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <?= $options_html ?>
+                </select>
+            </div>
             
             <div class="mb-6">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Deskripsi</label>
@@ -162,6 +191,13 @@ $kategori = mysqli_query($conn, "SELECT * FROM TABEL_KATEGORI ORDER BY id_katego
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Nama Kategori</label>
                 <input type="text" name="nama_kategori" id="edit_nama_kategori" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Parent Kategori (Opsional)</label>
+                <select name="parent_id" id="edit_parent_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <?= $options_html ?>
+                </select>
             </div>
             
             <div class="mb-6">

@@ -2,7 +2,7 @@
 /* Author: Shaena */
 
 header('Content-Type: application/json');
-require_once '../koneksi.php';
+require_once '../config/koneksi.php';
 
 $headers = getallheaders();
 $api_key = $headers['x-api-key'] ?? $headers['X-Api-Key'] ?? '';

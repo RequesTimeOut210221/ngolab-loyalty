@@ -80,9 +80,9 @@ Fokus pada alur belanja mandiri (Self-Order Checkout), penukaran poin (Redemptio
 
 Untuk memastikan penggabungan kode (assessment 3) berjalan lancar tanpa konflik Git:
 
-1. **Database & `koneksi.php`:**
-   * **Dilarang keras mengubah atau menimpa berkas `koneksi.php` di GitHub.** 
-   * Jika kredensial database lokal laptop Anda berbeda (misal password MySQL kosong atau nama database berbeda), edit berkas secara lokal namun **jangan commit/push** perubahan berkas `koneksi.php` tersebut.
+1. **Database & `config/koneksi.php`:**
+   * **Dilarang keras mengubah atau menimpa berkas `config/koneksi.php` di GitHub.** 
+   * Jika kredensial database lokal laptop Anda berbeda (misal password MySQL kosong atau nama database berbeda), edit berkas secara lokal namun **jangan commit/push** perubahan berkas `config/koneksi.php` tersebut.
 2. **Batasan Berkas Tugas:**
    * Bekerjalah **hanya** pada file-file admin (`admin/kelola_*.php`) dan API (`api/*.php`) yang menjadi bagian tugas Anda masing-masing.
 3. **Perubahan Berkas Front-End:**
@@ -120,3 +120,22 @@ Untuk memudahkan proses development dan testing, beberapa akun default telah dis
 3. **Validasi Poin:** Cek profil **Member B**, poin harus bertambah (kelipatan Rp 10.000 = 1 Poin).
 4. **Penukaran Poin (Redemption):** Login sebagai **Member A**, tukarkan poin dengan voucher/reward di Katalog Reward. Poin akan langsung berkurang.
 5. **Klaim Bonus Media Sosial:** Klik tombol share di profil untuk mendapatkan bonus +10 poin (hanya berlaku 1 kali).
+
+---
+
+## 🌍 5. Panduan Deployment & Pengembangan Multi-Lingkungan
+
+Mengingat anggota tim memiliki sistem operasi yang berbeda-beda (Windows/Linux) serta persiapan untuk *deployment* ke *server production*, harap perhatikan poin-poin berikut:
+
+### 💻 Untuk Anggota Tim yang Menggunakan Windows (XAMPP / Laragon)
+1. **Fitur Upload & Folder Permissions**: Windows tidak seketat Linux dalam hal *file permissions*. Proses unggah (upload) gambar akan berjalan lancar tanpa menyebabkan peringatan `mkdir(): Permission denied`.
+2. **Ekstensi GD untuk Gambar WebP**: Secara default, PHP di XAMPP Windows mungkin menonaktifkan ekstensi `gd`.
+   * **Dampaknya**: Sistem sudah dilengkapi mekanisme *fallback*. Jika modul `gd` mati, sistem otomatis melewati proses konversi WebP dan menyimpan file sesuai format aslinya (JPG/PNG) sehingga *app* tidak akan *crash*.
+   * **Solusi (Opsional)**: Jika Anda ingin kompresi WebP berjalan di *localhost* Windows, buka `php.ini`, cari dan hapus tanda titik koma (`;`) di depan `extension=gd`, kemudian *restart* Apache.
+3. **Koneksi Database**: Anda kemungkinan perlu mengubah *password* koneksi DB di `config/koneksi.php` (misal dari `$pass = "root"` menjadi `$pass = ""`). **Pastikan Anda tidak mem-push `config/koneksi.php` ke GitHub!**
+
+### 🌐 Untuk Deployment ke Server / Hosting (cPanel, VPS, dsb)
+1. **Perizinan Folder Hak Akses (CHMOD Wajib)**: Saat *deploy* ke Linux Server, *user web server* (`www-data` / `apache`) seringkali tidak punya izin menulis (*Write*) ke direktori proyek.
+   * **Solusi Wajib**: Di *File Manager hosting* atau SSH, buat folder manual jika belum ada (`assets/uploads/menus`, `/rewards`, `/profiles`) lalu berikan *permissions* **777** (atau **755** sesuai standar keamanan hosting). Jika tidak dilakukan, file gagal terunggah meskipun *app* tidak menampilkan *error*.
+2. **Konfigurasi Database Baru**: Jangan lupa menjalankan import dari `database/schema.sql` di phpMyAdmin server produksi Anda, lalu ganti variabel koneksi dalam `config/koneksi.php` agar sesuai dengan kredensial cPanel/Hostinger Anda.
+3. **Kompresi Otomatis**: Mayoritas server hosting modern sudah otomatis menyalakan ekstensi `gd`. Sehingga fitur unggah gambar `.webp` akan langsung berfungsi untuk menekan ukuran file agar web tetap ringan saat diakses oleh banyak orang.

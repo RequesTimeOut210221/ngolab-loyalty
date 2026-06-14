@@ -114,6 +114,7 @@ function showLoginModal() {
           <p class="text-sm text-gray-500 mt-1">Masukkan Nomor HP atau NIM Anda untuk memesan & mengklaim poin</p>
         </div>
         
+        <div id="login-error-alert" class="hidden mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100 font-medium"></div>
         <form id="login-form" class="space-y-4">
           <div>
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
@@ -126,7 +127,7 @@ function showLoginModal() {
             <input type="password" id="login-password" placeholder="••••••••" required
                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-lg font-medium text-center">
           </div>
-          <button type="submit" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-all">
+          <button type="submit" id="login-submit-btn" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-all">
             Masuk Sekarang
           </button>
         </form>
@@ -145,16 +146,33 @@ function showLoginModal() {
       e.preventDefault();
       const identifier = document.getElementById('login-identifier').value.trim();
       const password = document.getElementById('login-password').value.trim();
+      const alertBox = document.getElementById('login-error-alert');
+      const submitBtn = document.getElementById('login-submit-btn');
       
-      const res = await ApiService.login(identifier, password);
-      if (res.status === 'success') {
-        if (res.role === 'admin' && res.redirect) {
-            window.location.href = res.redirect;
-            return;
-        }
-        modal.remove();
-        await initUserData();
-        switchTab('home');
+      alertBox.classList.add('hidden');
+      submitBtn.innerHTML = 'Memproses...';
+      submitBtn.disabled = true;
+      
+      try {
+          const res = await ApiService.login(identifier, password);
+          if (res.status === 'success') {
+            if (res.role === 'admin' && res.redirect) {
+                window.location.href = res.redirect;
+                return;
+            }
+            modal.remove();
+            await initUserData();
+            switchTab('home');
+          } else {
+            alertBox.textContent = res.message || 'Username atau password salah!';
+            alertBox.classList.remove('hidden');
+          }
+      } catch (err) {
+          alertBox.textContent = 'Terjadi kesalahan pada server.';
+          alertBox.classList.remove('hidden');
+      } finally {
+          submitBtn.innerHTML = 'Masuk Sekarang';
+          submitBtn.disabled = false;
       }
     });
 
@@ -410,12 +428,11 @@ async function setupCategoryFilters() {
   const selectFilter = document.getElementById('menu-category-filter');
   const searchInput = document.getElementById('menu-search-input');
   
-  if (selectFilter) {
-    const categories = await ApiService.getCategories();
+  if (selectFilter && selectFilter.options.length <= 1) {
+    const cats = [...new Set(AppState.menus.flatMap(m => m.kategori ? [m.kategori] : []))];
     selectFilter.innerHTML = `<option value="all">Semua Kategori</option>` + 
-      categories.map(cat => {
-        const value = (cat.nama_kategori || cat.kategori || '').toLowerCase();
-        return `<option value="${value}">${cat.nama_kategori}</option>`;
+      cats.map(c => {
+        return `<option value="${c.toLowerCase()}">${c}</option>`;
       }).join('');
       
     selectFilter.addEventListener('change', (e) => {
@@ -424,7 +441,8 @@ async function setupCategoryFilters() {
     });
   }
   
-  if (searchInput) {
+  if (searchInput && !searchInput.dataset.listener) {
+    searchInput.dataset.listener = 'true';
     searchInput.addEventListener('input', (e) => {
       AppState.menuSearch = e.target.value.toLowerCase().trim();
       renderCatalogCards();
@@ -437,8 +455,8 @@ function renderCatalogCards() {
   if (!grid) return;
   
   const filtered = AppState.menus.filter(m => {
-    const catMatch = AppState.selectedCategory === 'all' || AppState.selectedCategory === '' || m.category === AppState.selectedCategory || m.kategori.toLowerCase() === AppState.selectedCategory;
-    const searchMatch = AppState.menuSearch === '' || m.nama_menu.toLowerCase().includes(AppState.menuSearch) || (m.description || '').toLowerCase().includes(AppState.menuSearch);
+    const catMatch = AppState.selectedCategory === 'all' || AppState.selectedCategory === '' || m.category === AppState.selectedCategory || (m.kategori || '').toLowerCase() === AppState.selectedCategory;
+    const searchMatch = AppState.menuSearch === '' || (m.nama_menu || '').toLowerCase().includes(AppState.menuSearch) || (m.description || '').toLowerCase().includes(AppState.menuSearch);
     return catMatch && searchMatch;
   });
     
@@ -455,7 +473,7 @@ function renderCatalogCards() {
         <div>
           <img src="${imageSrc}" alt="${item.nama_menu}" class="h-40 w-full object-cover">
           <div class="p-4">
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
               ${item.kategori || 'General'}
             </span>
             <h4 class="font-bold text-slate-800 mt-2 text-base leading-tight">${item.nama_menu}</h4>

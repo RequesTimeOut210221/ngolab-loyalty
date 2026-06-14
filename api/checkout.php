@@ -2,7 +2,7 @@
 /* Author: Shaena */
 
 header('Content-Type: application/json');
-require_once '../koneksi.php';
+require_once '../config/koneksi.php';
 
 function current_user(mysqli $conn): ?array {
     $headers = getallheaders();

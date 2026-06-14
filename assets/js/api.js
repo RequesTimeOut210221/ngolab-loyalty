@@ -200,6 +200,10 @@ const ApiService = {
     if (res.error) {
       throw new Error(res.error);
     }
+    
+    if (res.avatar && !res.avatar.startsWith('http') && !res.avatar.startsWith('assets/')) {
+        res.avatar = `assets/uploads/profiles/${res.avatar}`;
+    }
 
     return res;
   },
@@ -250,15 +254,23 @@ const ApiService = {
     });
 
     if (Array.isArray(res)) {
-      return res.map((menu) => ({
-        ...menu,
-        id_menu: Number(menu.id_menu || menu.id),
-        kategori: menu.kategori || menu.category || "",
-        category: menu.category || menu.kategori || "",
-        gambar_menu: menu.gambar_menu || (menu.gambar ? `assets/uploads/menus/${menu.gambar}` : ""),
-        description: menu.description || menu.deskripsi || "",
-        poin_didapat: Number(menu.poin_didapat || Math.floor(Number(menu.harga || 0) / 10000)),
-      }));
+      return res.map((menu) => {
+        let rawGambar = menu.gambar_menu || menu.gambar || "";
+        let finalGambar = rawGambar;
+        if (rawGambar && !rawGambar.startsWith('http') && !rawGambar.startsWith('assets/')) {
+            finalGambar = `assets/uploads/menus/${rawGambar}`;
+        }
+        
+        return {
+          ...menu,
+          id_menu: Number(menu.id_menu || menu.id),
+          kategori: menu.kategori || menu.category || "",
+          category: menu.category || menu.kategori || "",
+          gambar_menu: finalGambar,
+          description: menu.description || menu.deskripsi || "",
+          poin_didapat: Number(menu.poin_didapat || Math.floor(Number(menu.harga || 0) / 10000)),
+        };
+      });
     }
     return res;
   },
@@ -312,14 +324,22 @@ const ApiService = {
     });
 
     if (Array.isArray(res)) {
-      return res.map((reward) => ({
-        ...reward,
-        id_reward: Number(reward.id_reward || reward.id),
-        nama_reward: reward.nama_reward || reward.name || reward.nama || "",
-        poin_dibutuhkan: Number(reward.poin_dibutuhkan || reward.cost_points || reward.points || 0),
-        stok: Number(reward.stok || reward.stock || 0),
-        gambar: reward.gambar || reward.image || "https://placehold.co/300x300?text=Reward",
-      }));
+      return res.map((reward) => {
+        let rawGambar = reward.gambar || reward.image || "";
+        let finalGambar = rawGambar || "https://placehold.co/300x300?text=Reward";
+        if (rawGambar && !rawGambar.startsWith('http') && !rawGambar.startsWith('assets/')) {
+            finalGambar = `assets/uploads/rewards/${rawGambar}`;
+        }
+        
+        return {
+          ...reward,
+          id_reward: Number(reward.id_reward || reward.id),
+          nama_reward: reward.nama_reward || reward.name || reward.nama || "",
+          poin_dibutuhkan: Number(reward.poin_dibutuhkan || reward.cost_points || reward.points || 0),
+          stok: Number(reward.stok || reward.stock || 0),
+          gambar: finalGambar,
+        };
+      });
     }
     return res;
   },

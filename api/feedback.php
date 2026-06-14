@@ -1,7 +1,7 @@
 <?php
 /* Author: Ayesha */
 
-include '../koneksi.php';
+include '../config/koneksi.php';
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {

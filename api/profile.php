@@ -2,7 +2,7 @@
 /* Author: Mas'ud */
 
 header('Content-Type: application/json');
-require_once '../koneksi.php';
+require_once '../config/koneksi.php';
 
 // Auth middleware for consumer API
 $headers = getallheaders();
@@ -49,18 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         
         // Handle file upload
         if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = '../uploads/profiles/';
+            $upload_dir = '../assets/uploads/profiles/';
             if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
+                @mkdir($upload_dir, 0777, true);
             }
             
-            $file_extension = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
-            $file_name = 'avatar_' . $user['id_member'] . '_' . time() . '.' . $file_extension;
-            $target_file = $upload_dir . $file_name;
-            
-            if (move_uploaded_file($_FILES['avatar']['tmp_name'], $target_file)) {
-                // Return path relative to document root
-                $avatar_url = 'uploads/profiles/' . $file_name;
+            $webp_filename = uploadAndConvertToWebP($_FILES['avatar'], $upload_dir, 'avatar_' . $user['id_member']);
+            if ($webp_filename) {
+                $avatar_url = 'assets/uploads/profiles/' . $webp_filename;
             }
         }
         

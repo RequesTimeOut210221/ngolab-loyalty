@@ -126,7 +126,7 @@ function renderRewards() {
 
   const filtered = stateRewards.filter(r => {
     const catMatch = rewardCategory === 'all' || (r.nama_kategori && r.nama_kategori.toLowerCase() === rewardCategory);
-    const searchMatch = rewardSearch === '' || (r.nama_reward && r.nama_reward.toLowerCase().includes(rewardSearch));
+    const searchMatch = rewardSearch === '' || (r.nama_reward || '').toLowerCase().includes(rewardSearch);
     return catMatch && searchMatch;
   });
 
@@ -142,24 +142,28 @@ function renderRewards() {
       : 'bg-gray-100 text-gray-400 cursor-not-allowed';
     
     return `
-      <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 flex items-center justify-between hover-scale">
-        <div class="flex items-center space-x-4">
-          <img src="${reward.gambar}" alt="${reward.nama_reward}" class="w-16 h-16 rounded-xl object-cover">
-          <div>
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">${reward.nama_kategori || 'General'}</span>
-            <h5 class="text-sm font-bold text-slate-800 leading-tight mt-1">${reward.nama_reward}</h5>
-            <span class="text-xs font-semibold text-orange-500 mt-1 inline-block bg-orange-50 px-2 py-0.5 rounded-md">
-              ${reward.poin_dibutuhkan} Poin
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 hover-scale flex flex-col justify-between">
+        <div>
+          <img src="${reward.gambar}" alt="${reward.nama_reward}" class="h-40 w-full object-cover">
+          <div class="p-4">
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+              ${reward.nama_kategori || 'General'}
             </span>
-            <span class="text-[10px] text-gray-400 block mt-1">Stok: ${reward.stok}</span>
+            <h4 class="font-bold text-slate-800 mt-2 text-base leading-tight">${reward.nama_reward}</h4>
+            <p class="text-xs text-gray-500 mt-1">Stok: ${reward.stok}</p>
           </div>
         </div>
         
-        <button class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${btnColor}"
-                onclick="window.ProfileActions.redeemItem(${reward.id_reward})"
-                ${!isAffordable ? 'disabled' : ''}>
-          Tukar Poin
-        </button>
+        <div class="p-4 pt-0 border-t border-gray-50 mt-auto">
+          <div class="flex items-center justify-between my-3">
+            <span class="font-extrabold text-orange-600">${reward.poin_dibutuhkan} Poin</span>
+          </div>
+          <button class="w-full font-bold py-2 rounded-lg text-sm transition-all ${isAffordable ? 'bg-slate-800 hover:bg-slate-900 text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}"
+                  onclick="window.ProfileActions.redeemItem(${reward.id_reward})"
+                  ${!isAffordable ? 'disabled' : ''}>
+            Tukar Poin
+          </button>
+        </div>
       </div>
     `;
   }).join('');

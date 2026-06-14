@@ -1,7 +1,7 @@
 <?php
 /* Author: Mas'ud */
 header('Content-Type: application/json');
-require_once '../koneksi.php';
+require_once '../config/koneksi.php';
 
 $action = $_GET['action'] ?? '';
 

@@ -4,12 +4,22 @@ Dokumen ini memberikan penjelasan mengenai setiap direktori dan berkas yang terd
 
 ## 1. Direktori Utama
 - `index.html`: Merupakan halaman utama (Single Page Application) yang diakses oleh konsumen/member. Semua tampilan antarmuka front-end seperti katalog menu, keranjang, profil, dan penukaran poin dijalankan di sini secara dinamis menggunakan JavaScript.
-- `showcase.html`: Berkas ini digunakan sebagai galeri komponen UI dan prototipe. Disini Anda dapat melihat semua elemen desain seperti tombol, kartu, dan toast notification tanpa logika bisnis (hanya tampilan statis).
-- `koneksi.php`: Berkas penting untuk menghubungkan backend PHP dengan database MySQL. Memuat konfigurasi seperti *host*, *username*, *password*, dan *nama database*.
 - `README.md`: Panduan utama bagi pengembang terkait cara menjalankan proyek, pembagian tugas (role), dan panduan pengujian menggunakan akun default.
-- `explanation.md`: Berkas ini. Menjelaskan rincian fungsi setiap berkas dan folder di dalam repositori.
 
-## 2. Direktori `admin/` (Panel Admin Backend)
+## 2. Direktori `config/` (Konfigurasi Aplikasi)
+- `koneksi.php`: Berkas penting untuk menghubungkan backend PHP dengan database MySQL. Memuat konfigurasi seperti *host*, *username*, *password*, dan *nama database*.
+
+## 3. Direktori `references/` (Dokumentasi)
+- `explanation.md`: Berkas ini. Menjelaskan rincian fungsi setiap berkas dan folder di dalam repositori.
+- `Struktur Folder & File.md`: Rangkuman struktur direktori repositori.
+
+## 4. Direktori `prototypes/` (Prototipe UI)
+- `showcase.html`: Berkas ini digunakan sebagai galeri komponen UI dan prototipe. Disini Anda dapat melihat semua elemen desain seperti tombol, kartu, dan toast notification tanpa logika bisnis (hanya tampilan statis).
+
+## 5. Direktori `tests/`
+- `test_db.php`: Skrip pengujian sederhana untuk memverifikasi apakah koneksi ke database MySQL berhasil.
+
+## 6. Direktori `admin/` (Panel Admin Backend)
 Direktori ini berisi halaman-halaman antarmuka admin yang dibuat secara native dengan PHP dan HTML.
 - `admin_dashboard.php`: Halaman utama dan "cangkang" (layout) panel admin. Menangani sesi login staff dan melakukan inklusi (include) halaman-halaman kelola lainnya menggunakan parameter URL `?page=`.
 - `kelola_pesanan.php`: Halaman untuk melihat dan mengubah status pesanan pelanggan. Mengubah status pesanan menjadi "selesai" akan secara otomatis menambah poin ke member.

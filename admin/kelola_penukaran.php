@@ -2,7 +2,7 @@
 /* Author: Shaena */
  
 if (!defined('IN_ADMIN')) exit('No direct script access allowed'); 
-require_once '../koneksi.php';
+require_once '../config/koneksi.php';
 
 // Handle Actions (Approve, Reject, Delete)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {

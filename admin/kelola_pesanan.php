@@ -606,10 +606,12 @@
       return order.nim && order.nim.trim() !== '' ? order.nim : order.phone;
     }
 
+      //function untuk menghitung poin berdasarkan total belanja.
     function calculatePointsFromTotal(total) {
       return Math.floor(total / 10000);
     }
 
+      //Function ini dipake untuk mengisi object members dari data pesanan yang ada.
     function initMembers() {
       orders.forEach(o => {
         const key = memberKeyFor(o);

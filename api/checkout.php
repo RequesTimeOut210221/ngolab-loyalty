@@ -24,7 +24,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 // [GET] UNTUK MENAMPILKAN DATA (DIPANGGIL SAAT HALAMAN DI-LOAD)
 // =========================================================================
 if ($method === 'GET') {
-    // Query untuk mengambil semua data pesanan, diurutkan dari yang terbaru
+    // untuk mengambil semua data pesanan, diurutkan dari yang terbaru
     $sql = "SELECT id_pesanan, tanggal, nama_member, nim_member, no_hp, total_belanja, poin_didapat, status 
             FROM pesanan 
             ORDER BY tanggal DESC";
@@ -59,12 +59,12 @@ if ($method === 'POST') {
         $id_pesanan = $conn->real_escape_string($data['id_pesanan']);
         $status_baru = $conn->real_escape_string($data['status']);
 
-        // 1. Update status pesanan di tabel pesanan
+        //  Update status pesanan di tabel pesanan
         $sql_update = "UPDATE pesanan SET status = '$status_baru' WHERE id_pesanan = '$id_pesanan'";
         
         if ($conn->query($sql_update)) {
             
-            // 2. Jika status diubah ke 'Selesai', otomatis tambahkan poin ke saldo users
+            //  Jika status diubah ke 'Selesai', otomatis tambahkan poin ke saldo users
             if ($status_baru === 'Selesai') {
                 // Ambil data NIM dan poin dari pesanan tersebut
                 $sql_get_order = "SELECT nim_member, poin_didapat FROM pesanan WHERE id_pesanan = '$id_pesanan'";
@@ -75,7 +75,6 @@ if ($method === 'POST') {
                     $nim = $conn->real_escape_string($order_data['nim_member']);
                     $poin = intval($order_data['poin_didapat']);
                     
-                    // Note: Nama tabel diubah ke 'users' & kolom disesuaikan biar gak error
                     if (!empty($nim) && $poin > 0) {
                         $sql_update_poin = "UPDATE users SET saldo_poin = saldo_poin + $poin WHERE nim_member = '$nim'";
                         $conn->query($sql_update_poin);

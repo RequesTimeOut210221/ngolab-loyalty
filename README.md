@@ -33,18 +33,24 @@ File `assets/js/api.js` dilengkapi dengan sistem **Automatic Mock Fallback**.
 > - **MAS'UD:** Membangun struktur cangkang utama (shell) admin, sistem navigasi sidebar, manajemen sesi login, dan logika routing (`admin_dashboard.php`).
 > - **AYESHA & SHAENA:** Mengadaptasi dan mengintegrasikan file CRUD masing-masing agar dapat dipanggil dengan aman melalui parameter URL `?page=` (menghapus boilerplate HTML dan mematuhi aturan keamanan `IN_ADMIN`).
 
-Masing-masing anggota bertanggung jawab penuh atas pembuatan **2 CRUD PHP Monolitik (Panel Admin)** dan **2 Endpoint API PHP (Sisi Konsumen)**.
+Masing-masing anggota bertanggung jawab penuh atas pembuatan **minimal 2 CRUD PHP Monolitik (Panel Admin)** dan **minimal 2 Endpoint API PHP (Sisi Konsumen)**.
 
 ### 👤 ANGGOTA 1: MANAJEMEN PENGGUNA & AUTHENTICATION - MAS'UD
 Fokus pada alur pendaftaran, login gabungan (Unified Login), otentikasi API Key, serta pengelolaan profil & data pengguna.
 
+* **Tugas Infrastruktur:**
+  * `admin/admin_dashboard.php`: Struktur cangkang utama (shell) admin, sistem navigasi sidebar, manajemen sesi login, dan logika routing.
+  * `admin/layout_sidebar.php`: Komponen sidebar navigasi admin.
+  * `admin/logout.php`: Logout & destroy session.
+  * `api/middleware.php`: Validasi header `x-api-key`.
+  * `config/koneksi.php`, `database/schema.sql`, `assets/css/style.css`, `prototypes/showcase.html`.
 * **Tugas CRUD (Full PHP - Folder `admin/`):**
   * `admin/kelola_member.php`: Menampilkan daftar member, level tier, total belanja, saldo poin, edit member manual, hapus member, serta mengubah role (Superadmin privilege).
   * `admin/kelola_staff.php`: Mengelola akun staff admin baru (Tambah, Baca, Update, Hapus dengan enkripsi sandi).
 * **Tugas API Endpoint (Folder `api/`):**
   * `api/auth.php`: Menangani login member via nomor HP (kembalikan API Key) dan registrasi member baru (+10 Poin Welcome Bonus).
   * `api/profile.php`: Mengambil detail profil member (`GET` dengan header `x-api-key`) dan mengupdate profil/unggah avatar (`POST/PUT` simpan di `uploads/profiles/`).
-* **Halaman Terkait:** `index.html` (Unified Login & Dashboard) dan integrasi frontend tab Profil.
+* **Halaman Terkait:** `index.html` (Unified Login & Dashboard) dan integrasi frontend tab Profil (`assets/js/profile.js`).
 
 ---
 
@@ -57,8 +63,9 @@ Fokus pada pengelolaan menu kafe/bakso (Hybrid Catalog), kategori menu, serta si
   * `admin/kelola_feedback.php`: Memantau ulasan/rating masuk dari member dan menghapus ulasan yang tidak pantas.
 * **Tugas API Endpoint (Folder `api/`):**
   * `api/menus.php`: Menyediakan daftar menu (`GET`) berdasarkan filter kategori (`cafe`/`bakso`).
+  * `api/categories.php`: Mengembalikan daftar kategori menu (`GET`) untuk pengelompokan di frontend.
   * `api/feedback.php`: Menerima rating & ulasan dari member (`POST`) dan memberikan reward otomatis **+5 Poin** (dibatasi 1x per pesanan). `GET` untuk mengambil ulasan publik.
-* **Halaman Terkait:** Integrasi katalog produk pada tab Menu konsumen.
+* **Halaman Terkait:** Integrasi katalog produk pada tab Menu konsumen (`index.html` & `assets/js/app.js`).
 
 ---
 
@@ -72,6 +79,7 @@ Fokus pada alur belanja mandiri (Self-Order Checkout), penukaran poin (Redemptio
 * **Tugas API Endpoint (Folder `api/`):**
   * `api/checkout.php`: Menerima pembuatan pesanan baru (`POST`) dari keranjang belanja konsumen dan menghitung potensi poin yang didapat. `GET` untuk riwayat belanja member yang login.
   * `api/redemptions.php`: Memproses penukaran poin member (`POST`) dengan item reward pilihan (mengurangi poin secara real-time). `GET` untuk riwayat klaim voucher/WiFi (ditampilkan di Katalog Reward atau Riwayat).
+  * `api/rewards.php`: Mengembalikan daftar reward/hadiah (`GET`) untuk ditampilkan di halaman konsumen.
   * `api/share_bonus.php`: Menangani klaim bonus medsos (`POST`) dengan memberikan **+10 Poin** jika member pertama kali melakukan klik share (ubah flag `is_shared_sosmed` di database jadi `true`).
 
 ---

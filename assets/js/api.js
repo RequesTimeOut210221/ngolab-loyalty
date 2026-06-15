@@ -12,7 +12,7 @@ const API_CONFIG = {
     window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, ""),
   apiKeyHeader: "x-api-key",
   // Auto-detected mock mode when backend is missing
-  useMockFallback: true,
+  useMockFallback: false,
 };
 
 // Toast notification helper
@@ -298,14 +298,33 @@ const ApiService = {
 
     if (res._mock) {
       // Mock Login behavior
-      if (phone === "admin@ngolab.com" || phone === "081111111111" || phone === "1234567890" || phone === "Super Admin") {
+      if (
+        phone === "admin@ngolab.com" ||
+        phone === "081111111111" ||
+        phone === "1234567890" ||
+        phone === "Super Admin"
+      ) {
         if (password === "admin123") {
-           SessionManager.setSession("mock-admin-session", "Super Admin", "admin@ngolab.com", 0, "1234567890");
-           showToast("Welcome Admin");
-           return { status: "success", role: "admin", redirect: "admin/admin_dashboard.php", message: "Welcome Admin" };
+          SessionManager.setSession(
+            "mock-admin-session",
+            "Super Admin",
+            "admin@ngolab.com",
+            0,
+            "1234567890",
+          );
+          showToast("Welcome Admin");
+          return {
+            status: "success",
+            role: "admin",
+            redirect: "admin/admin_dashboard.php",
+            message: "Welcome Admin",
+          };
         }
       }
-      if ((phone === "1202210045" || phone === "08123456789") && (!password || password === "123456")) {
+      if (
+        (phone === "1202210045" || phone === "08123456789") &&
+        (!password || password === "123456")
+      ) {
         const mockKey = "ng-mock-apikey-budi-1202210045";
         SessionManager.setSession(
           mockKey,
@@ -317,11 +336,19 @@ const ApiService = {
         showToast("Login Berhasil! Selamat datang di Ngolab Cafe.");
         return { status: "success", key: mockKey, user: MOCK_DB.profile };
       } else {
-        showToast("Kredensial salah atau Nomor HP/NIM tidak terdaftar!", "error");
+        showToast(
+          "Kredensial salah atau Nomor HP/NIM tidak terdaftar!",
+          "error",
+        );
         return { status: "error", message: "User not found" };
       }
     }
-    if (res.status === "success" && res.role === "member" && res.key && res.user) {
+    if (
+      res.status === "success" &&
+      res.role === "member" &&
+      res.key &&
+      res.user
+    ) {
       SessionManager.setSession(
         res.key,
         res.user.username,
@@ -355,7 +382,13 @@ const ApiService = {
       return { status: "success", key: mockKey };
     }
     if (res.status === "success" && res.key) {
-      SessionManager.setSession(res.key, username, email, 10, phone.substring(0, 10));
+      SessionManager.setSession(
+        res.key,
+        username,
+        email,
+        10,
+        phone.substring(0, 10),
+      );
     }
     return res;
   },
@@ -382,9 +415,13 @@ const ApiService = {
       id_menu: Number(menu.id_menu || menu.id),
       kategori: menu.kategori || menu.category || "",
       category: menu.category || menu.kategori || "",
-      gambar_menu: menu.gambar_menu || (menu.gambar ? `assets/uploads/menus/${menu.gambar}` : ""),
+      gambar_menu:
+        menu.gambar_menu ||
+        (menu.gambar ? `assets/uploads/menus/${menu.gambar}` : ""),
       description: menu.description || menu.deskripsi || "",
-      poin_didapat: Number(menu.poin_didapat || Math.floor(Number(menu.harga || 0) / 10000)),
+      poin_didapat: Number(
+        menu.poin_didapat || Math.floor(Number(menu.harga || 0) / 10000),
+      ),
     }));
   },
 
@@ -427,9 +464,14 @@ const ApiService = {
       ...reward,
       id_reward: Number(reward.id_reward || reward.id),
       nama_reward: reward.nama_reward || reward.name || reward.nama || "",
-      poin_dibutuhkan: Number(reward.poin_dibutuhkan || reward.cost_points || reward.points || 0),
+      poin_dibutuhkan: Number(
+        reward.poin_dibutuhkan || reward.cost_points || reward.points || 0,
+      ),
       stok: Number(reward.stok || reward.stock || 0),
-      gambar: reward.gambar || reward.image || "https://placehold.co/300x300?text=Reward",
+      gambar:
+        reward.gambar ||
+        reward.image ||
+        "https://placehold.co/300x300?text=Reward",
     }));
   },
 
@@ -439,7 +481,7 @@ const ApiService = {
       method: "GET",
     });
     if (res._mock) {
-      return [{nama_kategori: "Cafe"}, {nama_kategori: "Bakso"}];
+      return [{ nama_kategori: "Cafe" }, { nama_kategori: "Bakso" }];
     }
     return res;
   },
@@ -462,7 +504,8 @@ const ApiService = {
   },
 
   async submitFeedback(rating, ulasan) {
-    const nama_user = localStorage.getItem("ngolab_username") || "Pelanggan Anonim";
+    const nama_user =
+      localStorage.getItem("ngolab_username") || "Pelanggan Anonim";
     const res = await request(`${API_CONFIG.baseUrl}/api/feedback.php`, {
       method: "POST",
       body: JSON.stringify({ rating, ulasan, nama_user }),

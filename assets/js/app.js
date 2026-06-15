@@ -4,7 +4,12 @@ import { ApiService, SessionManager, showToast } from "./api.js";
 const AppState = {
   activeTab: "home",
   cart: [],
+<<<<<<< HEAD
   selectedCategory: "all",
+=======
+  selectedCategory: 'all',
+  menuSearch: '',
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
   menus: [],
   user: null,
 };
@@ -114,6 +119,7 @@ function showLoginModal() {
           <p class="text-sm text-gray-500 mt-1">Masukkan Nomor HP atau NIM Anda untuk memesan & mengklaim poin</p>
         </div>
         
+        <div id="login-error-alert" class="hidden mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100 font-medium"></div>
         <form id="login-form" class="space-y-4">
           <div>
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
@@ -126,7 +132,7 @@ function showLoginModal() {
             <input type="password" id="login-password" placeholder="••••••••" required
                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-lg font-medium text-center">
           </div>
-          <button type="submit" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-all">
+          <button type="submit" id="login-submit-btn" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-all">
             Masuk Sekarang
           </button>
         </form>
@@ -141,40 +147,39 @@ function showLoginModal() {
     document.body.appendChild(modal);
 
     // Login Submission
-    document
-      .getElementById("login-form")
-      .addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const identifier = document
-          .getElementById("login-identifier")
-          .value.trim();
-        const password = document.getElementById("login-password").value.trim();
-
-        const res = await ApiService.login(identifier, password);
-        if (res.status === "success") {
-          if (res.role === "admin" && res.redirect) {
-            window.location.href = res.redirect;
-            return;
-        try {
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const identifier = document.getElementById('login-identifier').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      const alertBox = document.getElementById('login-error-alert');
+      const submitBtn = document.getElementById('login-submit-btn');
+      
+      alertBox.classList.add('hidden');
+      submitBtn.innerHTML = 'Memproses...';
+      submitBtn.disabled = true;
+      
+      try {
           const res = await ApiService.login(identifier, password);
-          if (res.status === "success") {
-            if (res.role === "admin" && res.redirect) {
-              window.location.href = res.redirect;
-              return;
+          if (res.status === 'success') {
+            if (res.role === 'admin' && res.redirect) {
+                window.location.href = res.redirect;
+                return;
             }
             modal.remove();
             await initUserData();
-            switchTab("home");
+            switchTab('home');
           } else {
-            showToast(res.message || "Kredensial salah atau tidak terdaftar.", "error");
+            alertBox.textContent = res.message || 'Username atau password salah!';
+            alertBox.classList.remove('hidden');
           }
-          modal.remove();
-          await initUserData();
-          switchTab("home");
-        } catch (error) {
-          showToast("Gagal terhubung ke server.", "error");
-        }
-      });
+      } catch (err) {
+          alertBox.textContent = 'Terjadi kesalahan pada server.';
+          alertBox.classList.remove('hidden');
+      } finally {
+          submitBtn.innerHTML = 'Masuk Sekarang';
+          submitBtn.disabled = false;
+      }
+    });
 
     // Toggle to Register Modal
     document
@@ -284,8 +289,34 @@ async function initUserData() {
     // Render views
     renderHomeView();
     updateNavbarUserInfo();
+    
+    // Start background live sync every 5 seconds
+    setInterval(syncUserData, 5000);
   } catch (error) {
     console.error("Failed to load profile", error);
+  }
+}
+
+// 🔄 Live Sync User Data
+async function syncUserData() {
+  if (!SessionManager.isLoggedIn()) return;
+  try {
+    const user = await ApiService.getProfile();
+    if (AppState.user && AppState.user.saldo_poin !== user.saldo_poin) {
+      AppState.user.saldo_poin = user.saldo_poin;
+      SessionManager.setPoints(user.saldo_poin);
+      updateNavbarUserInfo();
+      
+      // If user is currently viewing the profile or rewards tab, we might want to refresh it
+      if (AppState.activeTab === 'profil') {
+          if (typeof renderProfileView === 'function') renderProfileView();
+      }
+      if (AppState.activeTab === 'reward') {
+          if (window.ProfileActions && window.ProfileActions.refreshRewards) window.ProfileActions.refreshRewards();
+      }
+    }
+  } catch (error) {
+    // Silently fail on background sync errors
   }
 }
 
@@ -312,6 +343,7 @@ function renderHomeView() {
     `${currentPoints} POIN`;
 
   // Handle Tier Level Visual Styles
+<<<<<<< HEAD
   const idCard = document.getElementById("digital-id-card");
   const tierBadge = document.getElementById("member-tier-badge");
   if (idCard && tierBadge) {
@@ -326,6 +358,26 @@ function renderHomeView() {
     } else {
       idCard.classList.add("id-card-gold");
       tierBadge.textContent = "Gold Member";
+=======
+  const idBorder = document.getElementById('digital-id-border');
+  const tierBadge = document.getElementById('member-tier-badge');
+  if (idBorder && tierBadge) {
+    const baseBorderClasses = 'rounded-3xl p-1 shadow-lg hover:-translate-y-1 transition-transform duration-300 bg-gradient-to-br ';
+    const baseTextClasses = 'text-xs font-bold tracking-widest uppercase ';
+    
+    if (currentPoints < 20) {
+      idBorder.className = baseBorderClasses + 'from-orange-500 to-amber-400';
+      tierBadge.className = baseTextClasses + 'text-orange-400';
+      tierBadge.textContent = 'Bronze Member';
+    } else if (currentPoints < 50) {
+      idBorder.className = baseBorderClasses + 'from-slate-400 to-gray-300';
+      tierBadge.className = baseTextClasses + 'text-slate-300';
+      tierBadge.textContent = 'Silver Member';
+    } else {
+      idBorder.className = baseBorderClasses + 'from-yellow-400 to-amber-500';
+      tierBadge.className = baseTextClasses + 'text-yellow-400';
+      tierBadge.textContent = 'Gold Member';
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
     }
   }
 
@@ -455,6 +507,7 @@ async function loadCatalog() {
 }
 
 async function setupCategoryFilters() {
+<<<<<<< HEAD
   const dropdown = document.getElementById("category-filter-dropdown");
   if (dropdown) {
     const categories = await ApiService.getCategories();
@@ -495,22 +548,54 @@ async function setupCategoryFilters() {
       btnCafe.classList.add("text-gray-500");
 
       AppState.selectedCategory = "bakso";
+=======
+  const selectFilter = document.getElementById('menu-category-filter');
+  const searchInput = document.getElementById('menu-search-input');
+  
+  if (selectFilter && selectFilter.options.length <= 1) {
+    const cats = [...new Set(AppState.menus.flatMap(m => m.kategori ? [m.kategori] : []))];
+    selectFilter.innerHTML = `<option value="all">Semua Kategori</option>` + 
+      cats.map(c => {
+        return `<option value="${c.toLowerCase()}">${c}</option>`;
+      }).join('');
+      
+    selectFilter.addEventListener('change', (e) => {
+      AppState.selectedCategory = e.target.value;
       renderCatalogCards();
-    };
+    });
+  }
+  
+  if (searchInput && !searchInput.dataset.listener) {
+    searchInput.dataset.listener = 'true';
+    searchInput.addEventListener('input', (e) => {
+      AppState.menuSearch = e.target.value.toLowerCase().trim();
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
+      renderCatalogCards();
+    });
   }
 }
 
 function renderCatalogCards() {
   const grid = document.getElementById("catalog-grid");
   if (!grid) return;
+<<<<<<< HEAD
 
   const filtered =
     AppState.selectedCategory === "all" || AppState.selectedCategory === ""
       ? AppState.menus
       : AppState.menus.filter((m) => m.category === AppState.selectedCategory);
 
+=======
+  
+  const filtered = AppState.menus.filter(m => {
+    const catMatch = AppState.selectedCategory === 'all' || AppState.selectedCategory === '' || m.category === AppState.selectedCategory || (m.kategori || '').toLowerCase() === AppState.selectedCategory;
+    const searchMatch = AppState.menuSearch === '' || (m.nama_menu || '').toLowerCase().includes(AppState.menuSearch) || (m.description || '').toLowerCase().includes(AppState.menuSearch);
+    return catMatch && searchMatch;
+  });
+    
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
   if (filtered.length === 0) {
-    grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400">Tidak ada menu tersedia di kategori ini.</div>`;
+    grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400">Tidak ada menu yang sesuai.</div>`;
     return;
   }
 
@@ -527,8 +612,13 @@ function renderCatalogCards() {
         <div>
           <img src="${imageSrc}" alt="${item.nama_menu}" class="h-40 w-full object-cover">
           <div class="p-4">
+<<<<<<< HEAD
             <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${item.category === "cafe" ? "bg-orange-100 text-orange-600" : "bg-slate-100 text-slate-600"}">
               ${item.category === "cafe" ? "Ngo+Lab Cafe" : "Bakso Mas Yanto"}
+=======
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+              ${item.kategori || 'General'}
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
             </span>
             <h4 class="font-bold text-slate-800 mt-2 text-base leading-tight">${item.nama_menu}</h4>
             <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.description || ""}</p>
@@ -555,6 +645,7 @@ function renderCatalogCards() {
 
 // 🛒 Shopping Cart System
 function setupCartDrawer() {
+<<<<<<< HEAD
   const cartToggleBtn = document.getElementById("cart-toggle-btn");
   const cartCloseBtn = document.getElementById("cart-close-btn");
   const backdrop = document.getElementById("cart-drawer-backdrop");
@@ -572,6 +663,8 @@ function setupCartDrawer() {
     backdrop.addEventListener("click", toggle);
   }
 
+=======
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
   // Checkout Button
   const checkoutForm = document.getElementById("checkout-form");
   if (checkoutForm) {
@@ -643,6 +736,7 @@ function addToCart(id_menu) {
 
   updateCartUI();
   showToast(`Ditambahkan ke keranjang: ${menuItem.nama_menu}`);
+<<<<<<< HEAD
 
   // Automatically slide open the drawer
   const drawer = document.getElementById("cart-drawer");
@@ -651,6 +745,8 @@ function addToCart(id_menu) {
     drawer.classList.remove("translate-x-full");
     backdrop.classList.remove("opacity-0", "pointer-events-none");
   }
+=======
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
 }
 
 function updateCartUI() {
@@ -865,6 +961,15 @@ window.AppActions = {
   addToCart,
   adjustQty,
   switchTab,
+  toggleCart: () => {
+    const drawer = document.getElementById('cart-drawer');
+    const backdrop = document.getElementById('cart-drawer-backdrop');
+    if (drawer && backdrop) {
+      drawer.classList.toggle('translate-x-full');
+      backdrop.classList.toggle('opacity-0');
+      backdrop.classList.toggle('pointer-events-none');
+    }
+  },
   logout: () => {
     const confirmLogout = confirm("Apakah Anda yakin ingin keluar?");
     if (confirmLogout) {

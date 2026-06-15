@@ -1,13 +1,15 @@
 <?php
+/* Author: Shaena */
+
 header('Content-Type: application/json');
-require_once '../koneksi.php';
+require_once '../config/koneksi.php';
 
 function current_user(mysqli $conn): ?array {
     $headers = getallheaders();
     $api_key = $headers['x-api-key'] ?? $headers['X-Api-Key'] ?? '';
     if ($api_key === '') return null;
 
-    $stmt = $conn->prepare("SELECT * FROM TABEL_USER WHERE api_key = ?");
+    $stmt = $conn->prepare("SELECT * FROM TABEL_MEMBER WHERE api_key = ?");
     $stmt->bind_param("s", $api_key);
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc();
@@ -25,10 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         SELECT p.*, r.nama_reward, r.poin_dibutuhkan
         FROM TABEL_PENUKARAN_REWARD p
         JOIN TABEL_REWARD r ON r.id_reward = p.id_reward
-        WHERE p.id_user = ?
+        WHERE p.id_member = ?
         ORDER BY p.tanggal_tukar DESC
     ");
-    $stmt->bind_param("i", $user['id_user']);
+    $stmt->bind_param("i", $user['id_member']);
     $stmt->execute();
     $result = $stmt->get_result();
     $history = [];
@@ -60,14 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $conn->begin_transaction();
     try {
-        $stmt = $conn->prepare("UPDATE TABEL_USER SET saldo_poin = saldo_poin - ? WHERE id_user = ?");
-        $stmt->bind_param("ii", $reward['poin_dibutuhkan'], $user['id_user']);
+        $stmt = $conn->prepare("UPDATE TABEL_MEMBER SET saldo_poin = saldo_poin - ? WHERE id_member = ?");
+        $stmt->bind_param("ii", $reward['poin_dibutuhkan'], $user['id_member']);
         $stmt->execute();
 
         $status = ((int)$id_reward === 1) ? 'berhasil' : 'pending';
         $token_wifi = ((int)$id_reward === 1) ? 'WIFI-VIP-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 6)) : null;
-        $stmt = $conn->prepare("INSERT INTO TABEL_PENUKARAN_REWARD (id_user, id_reward, status, token_wifi) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("iiss", $user['id_user'], $id_reward, $status, $token_wifi);
+        $stmt = $conn->prepare("INSERT INTO TABEL_PENUKARAN_REWARD (id_member, id_reward, status, token_wifi) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("iiss", $user['id_member'], $id_reward, $status, $token_wifi);
         $stmt->execute();
 
         $conn->commit();

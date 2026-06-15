@@ -5,9 +5,20 @@ Berikut adalah struktur folder final yang sudah mencakup sistem manajemen profil
 ngolab-express-cafe/
 │
 ├── index.html                 # [FRONTEND] Halaman Konsumen & Login 1-Pintu (Beranda, Menu, Profil)
-├── koneksi.php                # [CRITICAL] File koneksi database global
 ├── README.md                  # Dokumentasi API Key untuk Assessment 3
 │
+├── config/                    # [BACKEND] Konfigurasi Aplikasi
+│   └── koneksi.php            # [CRITICAL] File koneksi database global
+│
+├── tests/                     # [BACKEND] Skrip Pengujian
+│   └── test_db.php            # Skrip untuk tes koneksi database
+│
+├── prototypes/                # [FRONTEND] Prototipe & Komponen UI
+│   └── showcase.html          # Galeri komponen UI
+│
+├── references/                # [DOCS] Referensi & Dokumentasi Tim
+│   ├── explanation.md         # Penjelasan detil semua file
+│   └── Struktur Folder & File.md
 ├── assets/                    # [FRONTEND] Aset Statis
 │   ├── css/style.css
 │   └── js/
@@ -71,7 +82,7 @@ Edit Profil: Jika user mengganti foto/nama di profil, fetch akan mengirim method
 
 ## Aturan Kolaborasi GitHub (Mencegah Conflict)
 
-1. **Dilarang keras** mengubah isi file `koneksi.php` jika formatnya sudah disepakati di Sprint 0. Jika kredensial database lokal berbeda (misal password `root` kosong atau tidak), cukup ubah di laptop masing-masing tapi **jangan di-push/commit** perubahan `koneksi.php` tersebut.
+1. **Dilarang keras** mengubah isi file `config/koneksi.php` jika formatnya sudah disepakati di Sprint 0. Jika kredensial database lokal berbeda (misal password `root` kosong atau tidak), cukup ubah di laptop masing-masing tapi **jangan di-push/commit** perubahan `config/koneksi.php` tersebut.
 
 2. Setiap anggota **hanya bekerja** di file `kelola_*.php` dan `*.php` di dalam folder `/api/` yang menjadi tanggung jawabnya (Sesuai pembagian 2 CRUD & 2 API per anggota).
 

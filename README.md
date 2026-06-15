@@ -80,12 +80,62 @@ Fokus pada alur belanja mandiri (Self-Order Checkout), penukaran poin (Redemptio
 
 Untuk memastikan penggabungan kode (assessment 3) berjalan lancar tanpa konflik Git:
 
-1. **Database & `koneksi.php`:**
-   * **Dilarang keras mengubah atau menimpa berkas `koneksi.php` di GitHub.** 
-   * Jika kredensial database lokal laptop Anda berbeda (misal password MySQL kosong atau nama database berbeda), edit berkas secara lokal namun **jangan commit/push** perubahan berkas `koneksi.php` tersebut.
+1. **Database & `config/koneksi.php`:**
+   * **Dilarang keras mengubah atau menimpa berkas `config/koneksi.php` di GitHub.** 
+   * Jika kredensial database lokal laptop Anda berbeda (misal password MySQL kosong atau nama database berbeda), edit berkas secara lokal namun **jangan commit/push** perubahan berkas `config/koneksi.php` tersebut.
 2. **Batasan Berkas Tugas:**
    * Bekerjalah **hanya** pada file-file admin (`admin/kelola_*.php`) dan API (`api/*.php`) yang menjadi bagian tugas Anda masing-masing.
 3. **Perubahan Berkas Front-End:**
    * Jika Anda perlu memodifikasi DOM atau fungsi di `index.html`, `assets/js/app.js`, atau `assets/css/style.css`, **komunikasikan terlebih dahulu di grup** sebelum melakukan `git push` untuk menghindari bentrokan perubahan (conflict).
 4. **Penyimpanan File Upload:**
    * Pastikan gambar menu disimpan di `/assets/uploads/menus/`, gambar reward di `/assets/uploads/rewards/`, dan avatar profil di `/assets/uploads/profiles/`.
+
+---
+
+## 🚀 4. Cara Menggunakan Web & Akun Default
+
+Untuk memudahkan proses development dan testing, beberapa akun default telah disediakan di dalam database (sesuai file `database/schema.sql`). Anda dapat menggunakan kredensial ini untuk login tanpa harus mendaftar akun baru.
+
+### Akun Default
+
+#### 1. Administrator (Super Admin)
+- **No. HP / NIM:** `081234567890` / `1234567890`
+- **Email:** `admin@ngolab.com`
+- **Password:** `admin123`
+- **Akses:** Dashboard Admin (Kelola Pesanan, Reward, Penukaran).
+
+#### 2. Member A (Poin Maksimal)
+- **No. HP / NIM:** `081234567891` / `1234567891`
+- **Password:** `member123`
+- **Kondisi:** Memiliki saldo poin maksimal (`999` poin). Gunakan akun ini untuk menguji fitur penukaran poin (Redemption) secara langsung.
+
+#### 3. Member B (Poin Kosong)
+- **No. HP / NIM:** `081234567892` / `1234567892`
+- **Password:** `member123`
+- **Kondisi:** Memiliki saldo `0` poin. Gunakan akun ini untuk menguji alur pembuatan pesanan (Checkout) dan memvalidasi penambahan poin setelah pesanan diselesaikan oleh admin.
+
+### Alur Pengujian Fitur Utama (Testing Flow)
+1. **Self-Order Checkout:** Login sebagai **Member B**, buat pesanan. Poin belum bertambah karena status pesanan "pending".
+2. **Konfirmasi Pesanan:** Login sebagai **Super Admin**, ubah status pesanan Member B menjadi "selesai" (Lunas).
+3. **Validasi Poin:** Cek profil **Member B**, poin harus bertambah (kelipatan Rp 10.000 = 1 Poin).
+4. **Penukaran Poin (Redemption):** Login sebagai **Member A**, tukarkan poin dengan voucher/reward di Katalog Reward. Poin akan langsung berkurang.
+5. **Klaim Bonus Media Sosial:** Klik tombol share di profil untuk mendapatkan bonus +10 poin (hanya berlaku 1 kali).
+
+---
+
+## 🌍 5. Panduan Deployment & Pengembangan Multi-Lingkungan
+
+Mengingat anggota tim memiliki sistem operasi yang berbeda-beda (Windows/Linux) serta persiapan untuk *deployment* ke *server production*, harap perhatikan poin-poin berikut:
+
+### 💻 Untuk Anggota Tim yang Menggunakan Windows (XAMPP / Laragon)
+1. **Fitur Upload & Folder Permissions**: Windows tidak seketat Linux dalam hal *file permissions*. Proses unggah (upload) gambar akan berjalan lancar tanpa menyebabkan peringatan `mkdir(): Permission denied`.
+2. **Ekstensi GD untuk Gambar WebP**: Secara default, PHP di XAMPP Windows mungkin menonaktifkan ekstensi `gd`.
+   * **Dampaknya**: Sistem sudah dilengkapi mekanisme *fallback*. Jika modul `gd` mati, sistem otomatis melewati proses konversi WebP dan menyimpan file sesuai format aslinya (JPG/PNG) sehingga *app* tidak akan *crash*.
+   * **Solusi (Opsional)**: Jika Anda ingin kompresi WebP berjalan di *localhost* Windows, buka `php.ini`, cari dan hapus tanda titik koma (`;`) di depan `extension=gd`, kemudian *restart* Apache.
+3. **Koneksi Database**: Anda kemungkinan perlu mengubah *password* koneksi DB di `config/koneksi.php` (misal dari `$pass = "root"` menjadi `$pass = ""`). **Pastikan Anda tidak mem-push `config/koneksi.php` ke GitHub!**
+
+### 🌐 Untuk Deployment ke Server / Hosting (cPanel, VPS, dsb)
+1. **Perizinan Folder Hak Akses (CHMOD Wajib)**: Saat *deploy* ke Linux Server, *user web server* (`www-data` / `apache`) seringkali tidak punya izin menulis (*Write*) ke direktori proyek.
+   * **Solusi Wajib**: Di *File Manager hosting* atau SSH, buat folder manual jika belum ada (`assets/uploads/menus`, `/rewards`, `/profiles`) lalu berikan *permissions* **777** (atau **755** sesuai standar keamanan hosting). Jika tidak dilakukan, file gagal terunggah meskipun *app* tidak menampilkan *error*.
+2. **Konfigurasi Database Baru**: Jangan lupa menjalankan import dari `database/schema.sql` di phpMyAdmin server produksi Anda, lalu ganti variabel koneksi dalam `config/koneksi.php` agar sesuai dengan kredensial cPanel/Hostinger Anda.
+3. **Kompresi Otomatis**: Mayoritas server hosting modern sudah otomatis menyalakan ekstensi `gd`. Sehingga fitur unggah gambar `.webp` akan langsung berfungsi untuk menekan ukuran file agar web tetap ringan saat diakses oleh banyak orang.

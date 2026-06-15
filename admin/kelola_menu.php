@@ -1,7 +1,9 @@
 <?php
+/* Author: Ayesha */
+
 if (!defined('IN_ADMIN')) exit('No direct script access allowed');
 if (!is_dir('../assets/uploads/menus')) {
-    mkdir('../assets/uploads/menus', 0777, true);
+    @mkdir('../assets/uploads/menus', 0777, true);
 }
 
 $message = '';
@@ -13,43 +15,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'create') {
             $nama = $_POST['nama_menu'];
             $harga = $_POST['harga'];
-            $kategori = $_POST['kategori'];
+            $id_kategori = $_POST['kategori'];
             $deskripsi = $_POST['deskripsi'];
-            $poin = floor($harga / 10000);
-
+            $poin = floor($harga / 10000); 
+            
             $gambar = '';
-            if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === UPLOAD_ERR_OK) {
-                $fileTmpPath = $_FILES['gambar']['tmp_name'];
-                $fileType = mime_content_type($fileTmpPath);
-                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                if (in_array($fileType, $allowedTypes)) {
-                    switch ($fileType) {
-                        case 'image/jpeg':
-                            $image = imagecreatefromjpeg($fileTmpPath);
-                            break;
-                        case 'image/png':
-                            $image = imagecreatefrompng($fileTmpPath);
-                            imagepalettetotruecolor($image);
-                            imagealphablending($image, true);
-                            imagesavealpha($image, true);
-                            break;
-                        case 'image/gif':
-                            $image = imagecreatefromgif($fileTmpPath);
-                            break;
-                        case 'image/webp':
-                            $image = imagecreatefromwebp($fileTmpPath);
-                            break;
-                    }
-                    if (isset($image)) {
-                        $gambar = uniqid('img_', true) . '.webp';
-                        imagewebp($image, '../assets/uploads/menus/' . $gambar, 80);
-                        imagedestroy($image);
-                    }
-                }
+            if (!empty($_FILES['gambar']['name'])) {
+                $webp_filename = uploadAndConvertToWebP($_FILES['gambar'], '../assets/uploads/menus', 'menu');
+                if ($webp_filename) $gambar = $webp_filename;
             }
-
-            $stmt = $conn->prepare("INSERT INTO TABEL_MENU (nama_menu, harga, kategori, deskripsi, gambar, poin_didapat) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sisssi", $nama, $harga, $kategori, $deskripsi, $gambar, $poin);
+            
+            $stmt = $conn->prepare("INSERT INTO TABEL_MENU (nama_menu, harga, id_kategori, deskripsi, gambar, poin_didapat) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("siissi", $nama, $harga, $id_kategori, $deskripsi, $gambar, $poin);
             if ($stmt->execute()) {
                 $message = "Menu baru berhasil ditambahkan.";
             } else {
@@ -68,11 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id_menu'];
             $nama = $_POST['nama_menu'];
             $harga = $_POST['harga'];
-            $kategori = $_POST['kategori'];
+            $id_kategori = $_POST['kategori'];
             $deskripsi = $_POST['deskripsi'];
             $poin = floor($harga / 10000);
 
             if (!empty($_FILES['gambar']['name'])) {
+<<<<<<< HEAD
                 $fileTmpPath = $_FILES['gambar']['tmp_name'];
                 $fileType = mime_content_type($fileTmpPath);
                 $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -101,10 +79,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $stmt = $conn->prepare("UPDATE TABEL_MENU SET nama_menu=?, harga=?, kategori=?, deskripsi=?, poin_didapat=?, gambar=? WHERE id_menu=?");
                         $stmt->bind_param("sisssii", $nama, $harga, $kategori, $deskripsi, $poin, $gambar, $id);
                     }
+=======
+                $webp_filename = uploadAndConvertToWebP($_FILES['gambar'], '../assets/uploads/menus', 'menu');
+                if ($webp_filename) {
+                    $gambar = $webp_filename;
+                    $stmt = $conn->prepare("UPDATE TABEL_MENU SET nama_menu=?, harga=?, id_kategori=?, deskripsi=?, poin_didapat=?, gambar=? WHERE id_menu=?");
+                    $stmt->bind_param("siisisi", $nama, $harga, $id_kategori, $deskripsi, $poin, $gambar, $id);
+                } else {
+                    $stmt = $conn->prepare("UPDATE TABEL_MENU SET nama_menu=?, harga=?, id_kategori=?, deskripsi=?, poin_didapat=? WHERE id_menu=?");
+                    $stmt->bind_param("siisii", $nama, $harga, $id_kategori, $deskripsi, $poin, $id);
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
                 }
             } else {
-                $stmt = $conn->prepare("UPDATE TABEL_MENU SET nama_menu=?, harga=?, kategori=?, deskripsi=?, poin_didapat=? WHERE id_menu=?");
-                $stmt->bind_param("sisssi", $nama, $harga, $kategori, $deskripsi, $poin, $id);
+                $stmt = $conn->prepare("UPDATE TABEL_MENU SET nama_menu=?, harga=?, id_kategori=?, deskripsi=?, poin_didapat=? WHERE id_menu=?");
+                $stmt->bind_param("siisii", $nama, $harga, $id_kategori, $deskripsi, $poin, $id);
             }
 
             if ($stmt->execute()) {
@@ -116,8 +104,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$menus = mysqli_query($conn, "SELECT * FROM TABEL_MENU ORDER BY id_menu DESC");
-$kategori_list = mysqli_query($conn, "SELECT * FROM TABEL_KATEGORI");
+$menus = mysqli_query($conn, "
+    SELECT m.*, k.nama_kategori AS kategori 
+    FROM TABEL_MENU m 
+    LEFT JOIN TABEL_KATEGORI_MENU k ON m.id_kategori = k.id_kategori 
+    ORDER BY m.id_menu DESC
+");
+$kategori_list = mysqli_query($conn, "SELECT * FROM TABEL_KATEGORI_MENU ORDER BY nama_kategori ASC");
 $kategori_options = [];
 while ($k = mysqli_fetch_assoc($kategori_list)) {
     $kategori_options[] = $k;
@@ -132,12 +125,16 @@ while ($k = mysqli_fetch_assoc($kategori_list)) {
     function closeCreateModal() {
         document.getElementById('createMenuModal').classList.add('hidden');
     }
+<<<<<<< HEAD
 
     function openEditModal(id, nama, harga, kategori, deskripsi) {
+=======
+    function openEditModal(id, nama, harga, id_kategori, deskripsi) {
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
         document.getElementById('edit_id_menu').value = id;
         document.getElementById('edit_nama_menu').value = nama;
         document.getElementById('edit_harga').value = harga;
-        document.getElementById('edit_kategori').value = kategori.toLowerCase();
+        document.getElementById('edit_kategori').value = id_kategori;
         document.getElementById('edit_deskripsi').value = deskripsi;
         document.getElementById('editMenuModal').classList.remove('hidden');
     }
@@ -174,6 +171,7 @@ while ($k = mysqli_fetch_assoc($kategori_list)) {
             </thead>
             <tbody class="text-gray-600 text-sm font-light">
                 <?php while ($row = mysqli_fetch_assoc($menus)): ?>
+<<<<<<< HEAD
                     <tr class="border-b border-gray-200 hover:bg-gray-100">
                         <td class="py-3 px-6 text-left whitespace-nowrap">
                             <img src="<?= !empty($row['gambar']) ? '../assets/uploads/menus/' . htmlspecialchars($row['gambar']) : 'https://placehold.co/100x100?text=No+Image' ?>" alt="<?= htmlspecialchars($row['nama_menu']) ?>" class="w-12 h-12 rounded object-cover shadow">
@@ -202,6 +200,36 @@ while ($k = mysqli_fetch_assoc($kategori_list)) {
                             </div>
                         </td>
                     </tr>
+=======
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-3 px-6 text-left whitespace-nowrap">
+                        <img src="<?= !empty($row['gambar']) ? '../assets/uploads/menus/' . htmlspecialchars($row['gambar']) : 'https://placehold.co/100x100?text=No+Image' ?>" alt="<?= htmlspecialchars($row['nama_menu']) ?>" class="w-12 h-12 rounded object-cover shadow">
+                    </td>
+                    <td class="py-3 px-6 text-left">
+                        <span class="font-bold block"><?= htmlspecialchars($row['nama_menu']) ?></span>
+                        <span class="text-xs text-gray-500 line-clamp-1"><?= htmlspecialchars($row['deskripsi']) ?></span>
+                    </td>
+                    <td class="py-3 px-6 text-left">
+                        <span class="bg-gray-200 text-gray-700 py-1 px-3 rounded-full text-xs font-bold capitalize"><?= htmlspecialchars($row['kategori']) ?></span>
+                    </td>
+                    <td class="py-3 px-6 text-center">
+                        <span class="block text-slate-800 font-medium">Rp <?= number_format($row['harga'], 0, ',', '.') ?></span>
+                        <span class="text-xs text-orange-500 font-bold">+<?= $row['poin_didapat'] ?> Poin</span>
+                    </td>
+                    <td class="py-3 px-6 text-center">
+                        <div class="flex item-center justify-center space-x-3">
+                            <button onclick="openEditModal(<?= $row['id_menu'] ?>, '<?= htmlspecialchars(addslashes($row['nama_menu'])) ?>', <?= $row['harga'] ?>, <?= $row['id_kategori'] ?: '""' ?>, '<?= htmlspecialchars(addslashes($row['deskripsi'])) ?>')" class="transform hover:text-blue-500 hover:scale-110">
+                                ✏️ Edit
+                            </button>
+                            <form method="POST" action="" class="inline" onsubmit="return confirm('Hapus menu ini?');">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id_menu" value="<?= $row['id_menu'] ?>">
+                                <button type="submit" class="transform hover:text-red-500 hover:scale-110">🗑️ Hapus</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
                 <?php endwhile; ?>
             </tbody>
         </table>
@@ -227,9 +255,16 @@ while ($k = mysqli_fetch_assoc($kategori_list)) {
                 </div>
                 <div class="w-1/2">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Kategori</label>
+<<<<<<< HEAD
                     <select name="kategori" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline capitalize">
                         <?php foreach ($kategori_options as $kat): ?>
                             <option value="<?= strtolower($kat['nama_kategori']) ?>"><?= htmlspecialchars($kat['nama_kategori']) ?></option>
+=======
+                    <select name="kategori" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="">-- Pilih Kategori --</option>
+                        <?php foreach ($kategori_options as $k): ?>
+                            <option value="<?= $k['id_kategori'] ?>"><?= htmlspecialchars($k['nama_kategori']) ?></option>
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -273,9 +308,16 @@ while ($k = mysqli_fetch_assoc($kategori_list)) {
                 </div>
                 <div class="w-1/2">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Kategori</label>
+<<<<<<< HEAD
                     <select name="kategori" id="edit_kategori" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline capitalize">
                         <?php foreach ($kategori_options as $kat): ?>
                             <option value="<?= strtolower($kat['nama_kategori']) ?>"><?= htmlspecialchars($kat['nama_kategori']) ?></option>
+=======
+                    <select name="kategori" id="edit_kategori" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="">-- Pilih Kategori --</option>
+                        <?php foreach ($kategori_options as $k): ?>
+                            <option value="<?= $k['id_kategori'] ?>"><?= htmlspecialchars($k['nama_kategori']) ?></option>
+>>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
                         <?php endforeach; ?>
                     </select>
                 </div>

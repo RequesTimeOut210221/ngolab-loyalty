@@ -1,10 +1,35 @@
 <?php
+/* Author: Mas'ud */
 header('Content-Type: application/json');
-require_once '../koneksi.php';
+require_once '../config/koneksi.php';
 
 $action = $_GET['action'] ?? '';
 
-// Check method
+// GET Method: Verify API Key
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $headers = getallheaders();
+    $api_key = $headers['x-api-key'] ?? $headers['X-Api-Key'] ?? '';
+    
+    if ($api_key === '') {
+        echo json_encode(['status' => 'error', 'message' => 'Missing x-api-key header for verification']);
+        exit;
+    }
+    
+    $stmt = $conn->prepare("SELECT username, email, role FROM TABEL_MEMBER WHERE api_key = ?");
+    $stmt->bind_param("s", $api_key);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+        echo json_encode(['status' => 'success', 'valid' => true, 'role' => 'member', 'username' => $user['username']]);
+    } else {
+        echo json_encode(['status' => 'error', 'valid' => false, 'message' => 'Invalid API Key']);
+    }
+    exit;
+}
+
+// Check method for POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['status' => 'error', 'message' => 'Invalid Request Method']);
     exit;
@@ -98,12 +123,6 @@ if ($action === 'login') {
     $stmt->bind_param("sssss", $username, $email, $password, $phone, $api_key);
 
     if ($stmt->execute()) {
-        $nim = $phone;
-        $mirror = $conn->prepare("INSERT INTO users (username, email, password, no_hp, nim, nim_member, saldo_poin, poin, api_key) VALUES (?, ?, ?, ?, ?, ?, 10, 10, ?) ON DUPLICATE KEY UPDATE username = VALUES(username), email = VALUES(email), password = VALUES(password), no_hp = VALUES(no_hp), api_key = VALUES(api_key)");
-        if ($mirror) {
-            $mirror->bind_param("sssssss", $username, $email, $password, $phone, $nim, $nim, $api_key);
-            $mirror->execute();
-        }
         echo json_encode(['status' => 'success', 'key' => $api_key]);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Gagal register: ' . $stmt->error]);

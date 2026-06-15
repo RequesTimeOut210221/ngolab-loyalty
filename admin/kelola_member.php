@@ -1,4 +1,6 @@
 <?php
+/* Author: Mas'ud */
+
 if (!defined('IN_ADMIN')) {
     exit('No direct script access allowed');
 }

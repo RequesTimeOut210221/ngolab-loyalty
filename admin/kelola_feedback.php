@@ -1,4 +1,6 @@
 <?php
+/* Author: Ayesha */
+
 if (!defined('IN_ADMIN')) exit('No direct script access allowed');
 
 $message = '';

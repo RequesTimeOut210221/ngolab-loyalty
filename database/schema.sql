@@ -26,23 +26,35 @@ CREATE TABLE IF NOT EXISTS `TABEL_STAFF` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS `TABEL_KATEGORI` (
+CREATE TABLE IF NOT EXISTS `TABEL_KATEGORI_MENU` (
   `id_kategori` INT AUTO_INCREMENT PRIMARY KEY,
   `nama_kategori` VARCHAR(100) NOT NULL,
   `deskripsi` TEXT DEFAULT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  `parent_id` INT DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`parent_id`) REFERENCES `TABEL_KATEGORI_MENU`(`id_kategori`) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS `TABEL_KATEGORI_REWARD` (
+  `id_kategori` INT AUTO_INCREMENT PRIMARY KEY,
+  `nama_kategori` VARCHAR(100) NOT NULL,
+  `deskripsi` TEXT DEFAULT NULL,
+  `parent_id` INT DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`parent_id`) REFERENCES `TABEL_KATEGORI_REWARD`(`id_kategori`) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS `TABEL_MENU` (
   `id_menu` INT AUTO_INCREMENT PRIMARY KEY,
   `nama_menu` VARCHAR(150) NOT NULL,
   `harga` INT NOT NULL,
-  `kategori` VARCHAR(50) NOT NULL,
+  `id_kategori` INT,
   `deskripsi` TEXT DEFAULT NULL,
   `gambar` VARCHAR(255) DEFAULT NULL,
   `poin_didapat` INT NOT NULL DEFAULT 0,
   `is_promo` BOOLEAN NOT NULL DEFAULT FALSE,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`id_kategori`) REFERENCES `TABEL_KATEGORI_MENU`(`id_kategori`) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS `TABEL_FEEDBACK` (
@@ -62,9 +74,10 @@ CREATE TABLE IF NOT EXISTS `TABEL_REWARD` (
   `poin_dibutuhkan` INT NOT NULL,
   `stok` INT NOT NULL DEFAULT 0,
   `gambar` VARCHAR(255) DEFAULT NULL,
-  `kategori` VARCHAR(50) DEFAULT NULL,
+  `id_kategori` INT,
   `tier` ENUM('basic', 'silver', 'gold') DEFAULT 'basic',
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`id_kategori`) REFERENCES `TABEL_KATEGORI_REWARD`(`id_kategori`) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS `TABEL_PESANAN` (
@@ -75,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `TABEL_PESANAN` (
   `total_harga` INT NOT NULL,
   `poin_didapat` INT NOT NULL,
   `catatan_pesanan` TEXT,
-  `status` ENUM('pending', 'diproses', 'selesai') NOT NULL DEFAULT 'pending',
+  `status` ENUM('pending', 'diproses', 'selesai', 'canceled') NOT NULL DEFAULT 'pending',
   `tanggal_pesan` DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`id_member`) REFERENCES `TABEL_MEMBER`(`id_member`) ON DELETE CASCADE,
   FOREIGN KEY (`id_menu`) REFERENCES `TABEL_MENU`(`id_menu`) ON DELETE CASCADE
@@ -92,28 +105,58 @@ CREATE TABLE IF NOT EXISTS `TABEL_PENUKARAN_REWARD` (
   FOREIGN KEY (`id_reward`) REFERENCES `TABEL_REWARD`(`id_reward`) ON DELETE CASCADE
 );
 
-INSERT INTO `TABEL_KATEGORI` (`nama_kategori`, `deskripsi`) VALUES
-('cafe', 'Berbagai varian kopi, non-kopi, dan menu cafe'),
-('bakso', 'Menu bakso dan makanan hangat')
-ON DUPLICATE KEY UPDATE `deskripsi` = VALUES(`deskripsi`);
+-- Seed Menu Categories
+INSERT INTO `TABEL_KATEGORI_MENU` (`id_kategori`, `nama_kategori`, `deskripsi`, `parent_id`) VALUES
+(1, 'Makanan', 'Berbagai jenis makanan', NULL),
+(2, 'Minuman', 'Berbagai jenis minuman', NULL),
+(3, 'Es Krim', 'Berbagai varian es krim', NULL),
+(4, 'Bakso', 'Varian bakso', 1),
+(5, 'Yamin', 'Varian mie yamin', 1),
+(6, 'Camilan', 'Berbagai snack dan camilan', 1),
+(7, 'Teh', 'Varian teh', 2),
+(8, 'Jus', 'Jus buah segar', 2),
+(9, 'Sparkling Drink', 'Minuman bersoda', 2),
+(10, 'Kopi', 'Varian kopi', 2),
+(11, 'Coklat', 'Varian minuman coklat', 2)
+ON DUPLICATE KEY UPDATE `nama_kategori` = VALUES(`nama_kategori`), `deskripsi` = VALUES(`deskripsi`), `parent_id` = VALUES(`parent_id`);
 
-INSERT INTO `TABEL_MENU` (`nama_menu`, `harga`, `kategori`, `deskripsi`, `gambar`, `poin_didapat`) VALUES
-('Kopi Susu Gula Aren', 15000, 'cafe', 'Espresso blend khas Ngolab dicampur susu segar dan sirup aren organik.', NULL, 1),
-('Classic Espresso', 10000, 'cafe', 'Ekstraksi kopi murni konsentrat tinggi dari biji kopi arabika robusta pilihan.', NULL, 1),
-('Caramel Macchiato', 22000, 'cafe', 'Espresso dengan steamed milk lembut dan karamel saus melimpah.', NULL, 2),
-('Ice Americano', 12000, 'cafe', 'Espresso shot dingin dengan air jernih segar, pilihan terbaik penahan kantuk.', NULL, 1),
-('Matcha Latte Green Tea', 20000, 'cafe', 'Bubuk matcha Uji Jepang premium diseduh dengan susu segar hangat/dingin.', NULL, 2),
-('Bakso Mas Yanto Spesial Urat', 22000, 'bakso', 'Bakso urat jumbo berdaging tebal disajikan dengan kuah kaldu sapi pekat, mie, dan seledri.', NULL, 2),
-('Bakso Halus Kuah Kaldu', 18000, 'bakso', '5 butir bakso halus lembut yang memanjakan lidah bersama kaldu sapi segar.', NULL, 1),
-('Bakso Telur Rebus', 20000, 'bakso', 'Bakso daging sapi isi telur rebus utuh disiram kaldu panas gurih.', NULL, 2)
-ON DUPLICATE KEY UPDATE `harga` = VALUES(`harga`);
+-- Seed Reward Categories
+INSERT INTO `TABEL_KATEGORI_REWARD` (`id_kategori`, `nama_kategori`, `deskripsi`, `parent_id`) VALUES
+(1, 'Voucher', 'Kupon diskon dan akses khusus', NULL),
+(2, 'Menu', 'Gratis menu spesial', NULL),
+(3, 'Merchandise', 'Barang-barang eksklusif', NULL)
+ON DUPLICATE KEY UPDATE `nama_kategori` = VALUES(`nama_kategori`), `deskripsi` = VALUES(`deskripsi`), `parent_id` = VALUES(`parent_id`);
 
-INSERT INTO `TABEL_REWARD` (`nama_reward`, `poin_dibutuhkan`, `stok`, `gambar`) VALUES
-('WiFi VIP Voucher 24 Jam', 5, 99, NULL),
-('Kopi Susu Aren Gratis', 15, 12, NULL),
-('Bakso Urat Jumbo Gratis', 25, 8, NULL)
-ON DUPLICATE KEY UPDATE `stok` = VALUES(`stok`);
+-- Seed Menus
+INSERT INTO `TABEL_MENU` (`nama_menu`, `harga`, `id_kategori`, `deskripsi`, `gambar`, `poin_didapat`) VALUES
+('Kopi Susu Gula Aren', 15000, 10, 'Espresso blend khas Ngolab dicampur susu segar dan sirup aren organik.', NULL, 1),
+('Classic Espresso', 10000, 10, 'Ekstraksi kopi murni konsentrat tinggi dari biji kopi arabika robusta pilihan.', NULL, 1),
+('Caramel Macchiato', 22000, 10, 'Espresso dengan steamed milk lembut dan karamel saus melimpah.', NULL, 2),
+('Ice Americano', 12000, 10, 'Espresso shot dingin dengan air jernih segar, pilihan terbaik penahan kantuk.', NULL, 1),
+('Matcha Latte Green Tea', 20000, 7, 'Bubuk matcha Uji Jepang premium diseduh dengan susu segar hangat/dingin.', NULL, 2),
+('Bakso Mas Yanto Spesial Urat', 22000, 4, 'Bakso urat jumbo berdaging tebal disajikan dengan kuah kaldu sapi pekat, mie, dan seledri.', NULL, 2),
+('Bakso Halus Kuah Kaldu', 18000, 4, '5 butir bakso halus lembut yang memanjakan lidah bersama kaldu sapi segar.', NULL, 1),
+('Bakso Telur Rebus', 20000, 4, 'Bakso daging sapi isi telur rebus utuh disiram kaldu panas gurih.', NULL, 2),
+('Mie Yamin Manis Spesial', 15000, 5, 'Mie yamin bumbu manis dengan ayam cincang dan pangsit goreng.', NULL, 1),
+('Kentang Goreng', 10000, 6, 'Kentang goreng renyah dengan taburan bumbu rahasia.', NULL, 1),
+('Es Krim Vanilla', 8000, 3, 'Es krim lembut rasa vanilla murni.', NULL, 0)
+ON DUPLICATE KEY UPDATE `harga` = VALUES(`harga`), `id_kategori` = VALUES(`id_kategori`), `deskripsi` = VALUES(`deskripsi`), `poin_didapat` = VALUES(`poin_didapat`);
 
+-- Seed Rewards
+INSERT INTO `TABEL_REWARD` (`nama_reward`, `poin_dibutuhkan`, `stok`, `gambar`, `id_kategori`, `tier`) VALUES
+('WiFi VIP Voucher 24 Jam', 5, 99, NULL, 1, 'basic'),
+('Kopi Susu Aren Gratis', 15, 12, NULL, 2, 'basic'),
+('Bakso Urat Jumbo Gratis', 25, 8, NULL, 2, 'silver'),
+('Kaos Eksklusif Ngolab', 50, 5, NULL, 3, 'gold')
+ON DUPLICATE KEY UPDATE `stok` = VALUES(`stok`), `id_kategori` = VALUES(`id_kategori`);
+
+-- Seed Staff
 INSERT INTO `TABEL_STAFF` (`username`, `email`, `password`, `role`, `no_hp`, `nim`) VALUES
-('Super Admin', 'admin@ngolab.com', SHA2('admin123', 256), 'superadmin', '081111111111', '1234567890')
+('Super Admin', 'admin@ngolab.com', SHA2('admin123', 256), 'superadmin', '081234567890', '1234567890')
 ON DUPLICATE KEY UPDATE `password` = VALUES(`password`), `role` = VALUES(`role`), `no_hp` = VALUES(`no_hp`), `nim` = VALUES(`nim`);
+
+-- Seed Members
+INSERT INTO `TABEL_MEMBER` (`username`, `email`, `password`, `no_hp`, `nim`, `saldo_poin`, `is_shared_sosmed`) VALUES
+('Member A', 'memberA@ngolab.com', SHA2('member123', 256), '081234567891', '1234567891', 999, FALSE),
+('Member B', 'memberB@ngolab.com', SHA2('member123', 256), '081234567892', '1234567892', 0, FALSE)
+ON DUPLICATE KEY UPDATE `saldo_poin` = VALUES(`saldo_poin`), `is_shared_sosmed` = VALUES(`is_shared_sosmed`);

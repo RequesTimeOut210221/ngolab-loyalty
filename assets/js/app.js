@@ -4,12 +4,8 @@ import { ApiService, SessionManager, showToast } from "./api.js";
 const AppState = {
   activeTab: "home",
   cart: [],
-<<<<<<< HEAD
   selectedCategory: "all",
-=======
-  selectedCategory: 'all',
-  menuSearch: '',
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
+  menuSearch: "",
   menus: [],
   user: null,
 };
@@ -147,39 +143,44 @@ function showLoginModal() {
     document.body.appendChild(modal);
 
     // Login Submission
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const identifier = document.getElementById('login-identifier').value.trim();
-      const password = document.getElementById('login-password').value.trim();
-      const alertBox = document.getElementById('login-error-alert');
-      const submitBtn = document.getElementById('login-submit-btn');
-      
-      alertBox.classList.add('hidden');
-      submitBtn.innerHTML = 'Memproses...';
-      submitBtn.disabled = true;
-      
-      try {
+    document
+      .getElementById("login-form")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const identifier = document
+          .getElementById("login-identifier")
+          .value.trim();
+        const password = document.getElementById("login-password").value.trim();
+        const alertBox = document.getElementById("login-error-alert");
+        const submitBtn = document.getElementById("login-submit-btn");
+
+        alertBox.classList.add("hidden");
+        submitBtn.innerHTML = "Memproses...";
+        submitBtn.disabled = true;
+
+        try {
           const res = await ApiService.login(identifier, password);
-          if (res.status === 'success') {
-            if (res.role === 'admin' && res.redirect) {
-                window.location.href = res.redirect;
-                return;
+          if (res.status === "success") {
+            if (res.role === "admin" && res.redirect) {
+              window.location.href = res.redirect;
+              return;
             }
             modal.remove();
             await initUserData();
-            switchTab('home');
+            switchTab("home");
           } else {
-            alertBox.textContent = res.message || 'Username atau password salah!';
-            alertBox.classList.remove('hidden');
+            alertBox.textContent =
+              res.message || "Username atau password salah!";
+            alertBox.classList.remove("hidden");
           }
-      } catch (err) {
-          alertBox.textContent = 'Terjadi kesalahan pada server.';
-          alertBox.classList.remove('hidden');
-      } finally {
-          submitBtn.innerHTML = 'Masuk Sekarang';
+        } catch (err) {
+          alertBox.textContent = "Terjadi kesalahan pada server.";
+          alertBox.classList.remove("hidden");
+        } finally {
+          submitBtn.innerHTML = "Masuk Sekarang";
           submitBtn.disabled = false;
-      }
-    });
+        }
+      });
 
     // Toggle to Register Modal
     document
@@ -249,14 +250,13 @@ function showRegisterModal() {
         const email = document.getElementById("reg-email").value.trim();
         const phone = document.getElementById("reg-phone").value.trim();
         const password = document.getElementById("reg-password").value.trim();
-
-        const res = await ApiService.register(username, email, phone, password);
-        if (res.status === "success") {
-          modal.remove();
-          await initUserData();
-          switchTab("home");
         try {
-          const res = await ApiService.register(username, email, phone, password);
+          const res = await ApiService.register(
+            username,
+            email,
+            phone,
+            password,
+          );
           if (res.status === "success") {
             modal.remove();
             await initUserData();
@@ -266,7 +266,10 @@ function showRegisterModal() {
             showToast(res.message || "Gagal mendaftar.", "error");
           }
         } catch (error) {
-          showToast("Gagal mendaftar. Pastikan backend database menyala.", "error");
+          showToast(
+            "Gagal mendaftar. Pastikan backend database menyala.",
+            "error",
+          );
         }
       });
 
@@ -289,7 +292,7 @@ async function initUserData() {
     // Render views
     renderHomeView();
     updateNavbarUserInfo();
-    
+
     // Start background live sync every 5 seconds
     setInterval(syncUserData, 5000);
   } catch (error) {
@@ -306,13 +309,14 @@ async function syncUserData() {
       AppState.user.saldo_poin = user.saldo_poin;
       SessionManager.setPoints(user.saldo_poin);
       updateNavbarUserInfo();
-      
+
       // If user is currently viewing the profile or rewards tab, we might want to refresh it
-      if (AppState.activeTab === 'profil') {
-          if (typeof renderProfileView === 'function') renderProfileView();
+      if (AppState.activeTab === "profil") {
+        if (typeof renderProfileView === "function") renderProfileView();
       }
-      if (AppState.activeTab === 'reward') {
-          if (window.ProfileActions && window.ProfileActions.refreshRewards) window.ProfileActions.refreshRewards();
+      if (AppState.activeTab === "reward") {
+        if (window.ProfileActions && window.ProfileActions.refreshRewards)
+          window.ProfileActions.refreshRewards();
       }
     }
   } catch (error) {
@@ -343,41 +347,25 @@ function renderHomeView() {
     `${currentPoints} POIN`;
 
   // Handle Tier Level Visual Styles
-<<<<<<< HEAD
-  const idCard = document.getElementById("digital-id-card");
+  const idBorder = document.getElementById("digital-id-border");
   const tierBadge = document.getElementById("member-tier-badge");
-  if (idCard && tierBadge) {
-    idCard.className =
-      "rounded-2xl p-6 shadow-xl relative overflow-hidden transition-all duration-500 ";
+  if (idBorder && tierBadge) {
+    const baseBorderClasses =
+      "rounded-3xl p-1 shadow-lg hover:-translate-y-1 transition-transform duration-300 bg-gradient-to-br ";
+    const baseTextClasses = "text-xs font-bold tracking-widest uppercase ";
+
     if (currentPoints < 20) {
-      idCard.classList.add("id-card-bronze");
+      idBorder.className = baseBorderClasses + "from-orange-500 to-amber-400";
+      tierBadge.className = baseTextClasses + "text-orange-400";
       tierBadge.textContent = "Bronze Member";
     } else if (currentPoints < 50) {
-      idCard.classList.add("id-card-silver");
+      idBorder.className = baseBorderClasses + "from-slate-400 to-gray-300";
+      tierBadge.className = baseTextClasses + "text-slate-300";
       tierBadge.textContent = "Silver Member";
     } else {
-      idCard.classList.add("id-card-gold");
+      idBorder.className = baseBorderClasses + "from-yellow-400 to-amber-500";
+      tierBadge.className = baseTextClasses + "text-yellow-400";
       tierBadge.textContent = "Gold Member";
-=======
-  const idBorder = document.getElementById('digital-id-border');
-  const tierBadge = document.getElementById('member-tier-badge');
-  if (idBorder && tierBadge) {
-    const baseBorderClasses = 'rounded-3xl p-1 shadow-lg hover:-translate-y-1 transition-transform duration-300 bg-gradient-to-br ';
-    const baseTextClasses = 'text-xs font-bold tracking-widest uppercase ';
-    
-    if (currentPoints < 20) {
-      idBorder.className = baseBorderClasses + 'from-orange-500 to-amber-400';
-      tierBadge.className = baseTextClasses + 'text-orange-400';
-      tierBadge.textContent = 'Bronze Member';
-    } else if (currentPoints < 50) {
-      idBorder.className = baseBorderClasses + 'from-slate-400 to-gray-300';
-      tierBadge.className = baseTextClasses + 'text-slate-300';
-      tierBadge.textContent = 'Silver Member';
-    } else {
-      idBorder.className = baseBorderClasses + 'from-yellow-400 to-amber-500';
-      tierBadge.className = baseTextClasses + 'text-yellow-400';
-      tierBadge.textContent = 'Gold Member';
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
     }
   }
 
@@ -507,69 +495,33 @@ async function loadCatalog() {
 }
 
 async function setupCategoryFilters() {
-<<<<<<< HEAD
-  const dropdown = document.getElementById("category-filter-dropdown");
-  if (dropdown) {
-    const categories = await ApiService.getCategories();
-    dropdown.innerHTML =
-      `<option value="all">Semua Menu</option>` +
-      categories
-        .map((cat) => {
-          const value = (cat.nama_kategori || cat.kategori || "").toLowerCase();
-          return `<option value="${value}">${cat.nama_kategori}</option>`;
+  const selectFilter = document.getElementById("menu-category-filter");
+  const searchInput = document.getElementById("menu-search-input");
+
+  if (selectFilter && selectFilter.options.length <= 1) {
+    const cats = [
+      ...new Set(
+        AppState.menus.flatMap((m) => (m.kategori ? [m.kategori] : [])),
+      ),
+    ];
+    selectFilter.innerHTML =
+      `<option value="all">Semua Kategori</option>` +
+      cats
+        .map((c) => {
+          return `<option value="${c.toLowerCase()}">${c}</option>`;
         })
         .join("");
 
-    dropdown.addEventListener("change", (e) => {
-      AppState.selectedCategory = e.target.value;
-      renderCatalogCards();
-    });
-    return;
-  }
-
-  const btnCafe = document.getElementById("filter-cafe-btn");
-  const btnBakso = document.getElementById("filter-bakso-btn");
-
-  if (btnCafe && btnBakso) {
-    btnCafe.onclick = () => {
-      btnCafe.classList.add("bg-white", "text-slate-800", "shadow-sm");
-      btnCafe.classList.remove("text-gray-500");
-      btnBakso.classList.remove("bg-white", "text-slate-800", "shadow-sm");
-      btnBakso.classList.add("text-gray-500");
-
-      AppState.selectedCategory = "cafe";
-      renderCatalogCards();
-    };
-
-    btnBakso.onclick = () => {
-      btnBakso.classList.add("bg-white", "text-slate-800", "shadow-sm");
-      btnBakso.classList.remove("text-gray-500");
-      btnCafe.classList.remove("bg-white", "text-slate-800", "shadow-sm");
-      btnCafe.classList.add("text-gray-500");
-
-      AppState.selectedCategory = "bakso";
-=======
-  const selectFilter = document.getElementById('menu-category-filter');
-  const searchInput = document.getElementById('menu-search-input');
-  
-  if (selectFilter && selectFilter.options.length <= 1) {
-    const cats = [...new Set(AppState.menus.flatMap(m => m.kategori ? [m.kategori] : []))];
-    selectFilter.innerHTML = `<option value="all">Semua Kategori</option>` + 
-      cats.map(c => {
-        return `<option value="${c.toLowerCase()}">${c}</option>`;
-      }).join('');
-      
-    selectFilter.addEventListener('change', (e) => {
+    selectFilter.addEventListener("change", (e) => {
       AppState.selectedCategory = e.target.value;
       renderCatalogCards();
     });
   }
-  
+
   if (searchInput && !searchInput.dataset.listener) {
-    searchInput.dataset.listener = 'true';
-    searchInput.addEventListener('input', (e) => {
+    searchInput.dataset.listener = "true";
+    searchInput.addEventListener("input", (e) => {
       AppState.menuSearch = e.target.value.toLowerCase().trim();
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
       renderCatalogCards();
     });
   }
@@ -578,22 +530,20 @@ async function setupCategoryFilters() {
 function renderCatalogCards() {
   const grid = document.getElementById("catalog-grid");
   if (!grid) return;
-<<<<<<< HEAD
 
-  const filtered =
-    AppState.selectedCategory === "all" || AppState.selectedCategory === ""
-      ? AppState.menus
-      : AppState.menus.filter((m) => m.category === AppState.selectedCategory);
-
-=======
-  
-  const filtered = AppState.menus.filter(m => {
-    const catMatch = AppState.selectedCategory === 'all' || AppState.selectedCategory === '' || m.category === AppState.selectedCategory || (m.kategori || '').toLowerCase() === AppState.selectedCategory;
-    const searchMatch = AppState.menuSearch === '' || (m.nama_menu || '').toLowerCase().includes(AppState.menuSearch) || (m.description || '').toLowerCase().includes(AppState.menuSearch);
+  const filtered = AppState.menus.filter((m) => {
+    const catMatch =
+      AppState.selectedCategory === "all" ||
+      AppState.selectedCategory === "" ||
+      m.category === AppState.selectedCategory ||
+      (m.kategori || "").toLowerCase() === AppState.selectedCategory;
+    const searchMatch =
+      AppState.menuSearch === "" ||
+      (m.nama_menu || "").toLowerCase().includes(AppState.menuSearch) ||
+      (m.description || "").toLowerCase().includes(AppState.menuSearch);
     return catMatch && searchMatch;
   });
-    
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
+
   if (filtered.length === 0) {
     grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400">Tidak ada menu yang sesuai.</div>`;
     return;
@@ -612,13 +562,8 @@ function renderCatalogCards() {
         <div>
           <img src="${imageSrc}" alt="${item.nama_menu}" class="h-40 w-full object-cover">
           <div class="p-4">
-<<<<<<< HEAD
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${item.category === "cafe" ? "bg-orange-100 text-orange-600" : "bg-slate-100 text-slate-600"}">
-              ${item.category === "cafe" ? "Ngo+Lab Cafe" : "Bakso Mas Yanto"}
-=======
             <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
-              ${item.kategori || 'General'}
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
+              ${item.kategori || "General"}
             </span>
             <h4 class="font-bold text-slate-800 mt-2 text-base leading-tight">${item.nama_menu}</h4>
             <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.description || ""}</p>
@@ -645,26 +590,6 @@ function renderCatalogCards() {
 
 // 🛒 Shopping Cart System
 function setupCartDrawer() {
-<<<<<<< HEAD
-  const cartToggleBtn = document.getElementById("cart-toggle-btn");
-  const cartCloseBtn = document.getElementById("cart-close-btn");
-  const backdrop = document.getElementById("cart-drawer-backdrop");
-  const drawer = document.getElementById("cart-drawer");
-
-  if (cartToggleBtn && cartCloseBtn && backdrop && drawer) {
-    const toggle = () => {
-      drawer.classList.toggle("translate-x-full");
-      backdrop.classList.toggle("opacity-0");
-      backdrop.classList.toggle("pointer-events-none");
-    };
-
-    cartToggleBtn.addEventListener("click", toggle);
-    cartCloseBtn.addEventListener("click", toggle);
-    backdrop.addEventListener("click", toggle);
-  }
-
-=======
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
   // Checkout Button
   const checkoutForm = document.getElementById("checkout-form");
   if (checkoutForm) {
@@ -736,17 +661,6 @@ function addToCart(id_menu) {
 
   updateCartUI();
   showToast(`Ditambahkan ke keranjang: ${menuItem.nama_menu}`);
-<<<<<<< HEAD
-
-  // Automatically slide open the drawer
-  const drawer = document.getElementById("cart-drawer");
-  const backdrop = document.getElementById("cart-drawer-backdrop");
-  if (drawer && backdrop) {
-    drawer.classList.remove("translate-x-full");
-    backdrop.classList.remove("opacity-0", "pointer-events-none");
-  }
-=======
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
 }
 
 function updateCartUI() {
@@ -962,12 +876,12 @@ window.AppActions = {
   adjustQty,
   switchTab,
   toggleCart: () => {
-    const drawer = document.getElementById('cart-drawer');
-    const backdrop = document.getElementById('cart-drawer-backdrop');
+    const drawer = document.getElementById("cart-drawer");
+    const backdrop = document.getElementById("cart-drawer-backdrop");
     if (drawer && backdrop) {
-      drawer.classList.toggle('translate-x-full');
-      backdrop.classList.toggle('opacity-0');
-      backdrop.classList.toggle('pointer-events-none');
+      drawer.classList.toggle("translate-x-full");
+      backdrop.classList.toggle("opacity-0");
+      backdrop.classList.toggle("pointer-events-none");
     }
   },
   logout: () => {

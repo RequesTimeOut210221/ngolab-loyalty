@@ -37,12 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     if (mysqli_query($conn, $query)) {
         if ($id_member !== 'NULL') {
-            mysqli_query($conn, "UPDATE TABEL_MEMBER SET saldo_poin = saldo_poin + 5 WHERE id_member = $id_member");
+            mysqli_query($conn, "UPDATE TABEL_MEMBER SET saldo_poin = saldo_poin + 10 WHERE id_member = $id_member");
         }
 
-        echo json_encode(['status' => 'success', 'message' => 'Berhasil! Anda mendapatkan +5 Poin tambahan.']);
+        echo json_encode(['status' => 'success', 'message' => 'Berhasil! Anda mendapatkan +10 Poin tambahan.']);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan ulasan.']);
     }
 }
-?>

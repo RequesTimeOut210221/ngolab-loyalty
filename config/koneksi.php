@@ -1,7 +1,7 @@
 <?php
-$host = "lamp-db";
+$host = "localhost";
 $user = "root";
-$pass = "root";
+$pass = "";
 $db = "ngolab_loyalty";
 
 $conn = new mysqli($host, $user, $pass, $db);
@@ -10,21 +10,22 @@ if ($conn->connect_error) {
     die("Koneksi gagal: " . $conn->connect_error);
 }
 
-function uploadAndConvertToWebP($fileInfo, $targetDir, $filenamePrefix) {
+function uploadAndConvertToWebP($fileInfo, $targetDir, $filenamePrefix)
+{
     if ($fileInfo['error'] !== UPLOAD_ERR_OK) {
         return false;
     }
-    
+
     if (!is_dir($targetDir)) {
         @mkdir($targetDir, 0777, true);
     }
-    
+
     $source = $fileInfo['tmp_name'];
     $info = getimagesize($source);
     if (!$info) return false;
-    
+
     $mime = $info['mime'];
-    
+
     // Fallback if GD is not installed
     if (!function_exists('imagecreatefromjpeg')) {
         $extension = pathinfo($fileInfo['name'], PATHINFO_EXTENSION);
@@ -41,7 +42,7 @@ function uploadAndConvertToWebP($fileInfo, $targetDir, $filenamePrefix) {
         }
         return false;
     }
-    
+
     $image = null;
     if ($mime === 'image/jpeg') {
         $image = @imagecreatefromjpeg($source);
@@ -63,18 +64,17 @@ function uploadAndConvertToWebP($fileInfo, $targetDir, $filenamePrefix) {
     } else {
         return false;
     }
-    
+
     if (!$image) return false;
-    
+
     $filename = $filenamePrefix . '_' . time() . '.webp';
     $targetPath = rtrim($targetDir, '/') . '/' . $filename;
-    
+
     if (imagewebp($image, $targetPath, 80)) {
         imagedestroy($image);
         return $filename;
     }
-    
+
     imagedestroy($image);
     return false;
 }
-?>

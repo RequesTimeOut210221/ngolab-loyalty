@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $id_kategori = (int)$data['id_kategori'];
     $gambar = isset($data['gambar']) ? mysqli_real_escape_string($conn, $data['gambar']) : '';
     $deskripsi = isset($data['deskripsi']) ? mysqli_real_escape_string($conn, $data['deskripsi']) : '';
-    $poin_didapat = floor($harga / 10000); // Hitung poin otomatis
+    $poin_didapat = floor($harga / 10000); 
 
     mysqli_query($conn, "INSERT INTO TABEL_MENU (nama_menu, harga, id_kategori, deskripsi, poin_didapat, gambar, is_promo) VALUES ('$nama', '$harga', $id_kategori, '$deskripsi', '$poin_didapat', '$gambar', 0)");
     echo json_encode(['status' => 'success', 'message' => 'Berhasil ditambahkan melalui API']);

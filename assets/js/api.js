@@ -6,16 +6,8 @@
  */
 
 const API_CONFIG = {
-<<<<<<< HEAD
-  baseUrl:
-    window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, ""),
-  apiKeyHeader: "x-api-key",
-  // Auto-detected mock mode when backend is missing
-  useMockFallback: false,
-=======
   baseUrl: window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, ""),
   apiKeyHeader: "x-api-key"
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
 };
 
 // Toast notification helper
@@ -214,28 +206,12 @@ const ApiService = {
     if (res.error) {
       throw new Error(res.error);
     }
-<<<<<<< HEAD
-    return res.map((menu) => ({
-      ...menu,
-      id_menu: Number(menu.id_menu || menu.id),
-      kategori: menu.kategori || menu.category || "",
-      category: menu.category || menu.kategori || "",
-      gambar_menu:
-        menu.gambar_menu ||
-        (menu.gambar ? `assets/uploads/menus/${menu.gambar}` : ""),
-      description: menu.description || menu.deskripsi || "",
-      poin_didapat: Number(
-        menu.poin_didapat || Math.floor(Number(menu.harga || 0) / 10000),
-      ),
-    }));
-=======
     
     if (res.avatar && !res.avatar.startsWith('http') && !res.avatar.startsWith('assets/')) {
         res.avatar = `assets/uploads/profiles/${res.avatar}`;
     }
 
     return res;
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
   },
 
   async updateProfile(name, avatarFile) {
@@ -262,33 +238,7 @@ const ApiService = {
       },
     );
 
-<<<<<<< HEAD
-    if (res._mock) {
-      localStorage.setItem("ngolab_username", name);
-      if (avatarFile) {
-        // Mock image preview URL
-        const previewUrl = URL.createObjectURL(avatarFile);
-        MOCK_DB.profile.avatar = previewUrl;
-      }
-      showToast("Profil berhasil diperbarui!");
-      return { status: "success" };
-    }
-    return res.map((reward) => ({
-      ...reward,
-      id_reward: Number(reward.id_reward || reward.id),
-      nama_reward: reward.nama_reward || reward.name || reward.nama || "",
-      poin_dibutuhkan: Number(
-        reward.poin_dibutuhkan || reward.cost_points || reward.points || 0,
-      ),
-      stok: Number(reward.stok || reward.stock || 0),
-      gambar:
-        reward.gambar ||
-        reward.image ||
-        "https://placehold.co/300x300?text=Reward",
-    }));
-=======
     return res;
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
   },
 
   // 👥 MEMBER 2: CATALOG & REVIEWS
@@ -296,12 +246,6 @@ const ApiService = {
     const res = await request(`${API_CONFIG.baseUrl}/api/categories.php`, {
       method: "GET",
     });
-<<<<<<< HEAD
-    if (res._mock) {
-      return [{ nama_kategori: "Cafe" }, { nama_kategori: "Bakso" }];
-    }
-=======
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
     return res;
   },
 
@@ -338,12 +282,7 @@ const ApiService = {
   },
 
   async submitFeedback(rating, ulasan) {
-<<<<<<< HEAD
-    const nama_user =
-      localStorage.getItem("ngolab_username") || "Pelanggan Anonim";
-=======
     const nama_user = getCachedStorage("ngolab_username") || "Pelanggan Anonim";
->>>>>>> ea91d3a48a8b785b21b6e9278cf3e65a86e80ce2
     const res = await request(`${API_CONFIG.baseUrl}/api/feedback.php`, {
       method: "POST",
       body: JSON.stringify({ rating, ulasan, nama_user }),

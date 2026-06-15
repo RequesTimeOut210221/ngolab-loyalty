@@ -101,7 +101,7 @@ if ($action === 'login') {
         }
     }
     
-    echo json_encode(['status' => 'error', 'message' => 'Kredensial salah!']);
+    echo json_encode(['status' => 'error', 'message' => 'Username atau Password salah!']);
     
 } elseif ($action === 'register') {
     $username = $data['username'] ?? '';

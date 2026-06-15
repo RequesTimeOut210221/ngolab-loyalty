@@ -617,7 +617,7 @@
         const key = memberKeyFor(o);
         if (!members[key]) members[key] = { name: o.name, nim: o.nim, phone: o.phone, balance: 0 };
       });
-      // Initialize balances from already-success orders (avoid double apply)
+      // Menambahkan saldo poin dari pesanan yang sudah berstatus sukses dan mencegah poin ditambahkan dua kali.
       orders.forEach(o => {
         if (o.status === 'success') {
           const key = memberKeyFor(o);
@@ -627,7 +627,7 @@
         }
       });
     }
-
+      // ini untuk mengupdate tampilan statistik di atas tabel berdaarkan data pesanan yang ada.
     const statTotal = document.getElementById('stat-total');
     const statPending = document.getElementById('stat-pending');
     const statProcessing = document.getElementById('stat-processing');
@@ -640,6 +640,7 @@
     const searchInput = document.getElementById('search-input');
     const exportButton = document.getElementById('export-button');
 
+    //fungsi untuk menghitung dan menampilkan statistik jumlah pesanan berdsarkan statusnya.
     function updateStats() {
       const total = orders.length;
       const pending = orders.filter(o => o.status === 'pending').length;
@@ -652,7 +653,7 @@
       statSuccess.textContent = success;
       statCanceled.textContent = canceled;
     }
-
+    //fungsi untuk menformat angka menjadi format mata uang rupiah.
     function formatCurrency(value) {
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
     }
